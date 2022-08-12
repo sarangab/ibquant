@@ -121,8 +121,7 @@ allow_redefinition = true
 disable_error_code = "attr-defined"
 warn_no_return = "False"
 
-# do not add type hints to lightnig_pod/cli/seed/ or core.module
-# because lightning already defines types
+
 [[tool.mypy.overrides]]
 module = []
 ignore_errors = true
