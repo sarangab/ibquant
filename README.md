@@ -17,7 +17,7 @@ ibtrader provides [ib.Trader](https://github.com/JustinGoheen/ibtrader/blob/main
 
 Aside from Trader, ibtrader also provides the following core classes:
 
-`Indicator` provides a base class for the [ibtrader.Indicators](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/indicators) borrowed from [thinkorswim](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
+`Study` provides a base class for the [ibtrader.studies](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/studies) borrowed from [thinkorswim](https://tlc.thinkorswim.com/center/reference/Tech-Indicators) and IBKR [Technical Analytics](https://guides.interactivebrokers.com/tws/twsguide.htm#chartindicatorstop.htm?TocPath=Technical%2520Analytics%257CChart%2520Indicators%257C_____0)
 `Contract` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
 `Order` provides interfaces for several TWS [order types](https://interactivebrokers.github.io/tws-api/available_orders.html)
 
