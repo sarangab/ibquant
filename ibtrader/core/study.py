@@ -1,6 +1,6 @@
 from abc import ABC
 
 
-class Strategy(ABC):
+class Study(ABC):
     def __init__(self):
         super().__init__()

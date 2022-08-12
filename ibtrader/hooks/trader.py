@@ -6,8 +6,8 @@ class TraderHooks(ABC):
     def __init__(self):
         super().__init__()
 
-    def strategy(self) -> None:
-        """a trading strategy"""
+    def study(self) -> None:
+        """a trading study"""
         ...
 
     def market(self) -> None:

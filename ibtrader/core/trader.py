@@ -12,5 +12,5 @@ class Trader(TraderHooks, ConnectionHooks, ContractHooks, AccountHooks):
         super().__init__()
         self.logger = logger
 
-    def trade(self, strategy, market):
+    def trade(self, study, market):
         ...
