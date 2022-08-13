@@ -18,7 +18,7 @@ ibtrader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interfac
 
 `Trader` drives the trading agent via some user defined strategy
 
-` Strategy` provides a base class for user defined strategies
+`Strategy` provides a base class for user defined strategies
 
 `Indicator` provides a base class for the [ibtrader.indicators](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/indicators)
 
