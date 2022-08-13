@@ -11,7 +11,7 @@ A command line interface and research framework for the Interactive Brokers APIs
 
 ## Overview
 
-ibtrader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interface with TWS, and uses [hydra](https://github.com/facebookresearch/hydra), [click](https://github.com/pallets/click) and [rich](https://github.com/Textualize/rich) to provide the command line interface.
+IB Trader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interface with TWS or Gateway, and uses [hydra](https://github.com/facebookresearch/hydra), [click](https://github.com/pallets/click) and [rich](https://github.com/Textualize/rich) to provide the command line tool.
 
 
 ## Core Classes
@@ -33,7 +33,7 @@ ibtrader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interfac
 
 > ibtrader is in active development. expect things to break or not function at all.
 
-install nightly version with:
+install the nightly version with:
 
 ```sh
 pip install git+https://github.com/JustinGoheen/ibtrader.git
@@ -50,6 +50,8 @@ or with poetry using:
 ```sh
 poetry add ibtrader
 ```
+
+> A distribution of ibtrader exists on conda; however, only as a placeholder. Only the PyPI distribution will be maintained during early development phases.
 
 ## Ecosystem
 
@@ -94,9 +96,20 @@ Several reputable resources exist for free trading and investing education.
 
 ## Suggested Reading and References
 
-Many texts exist on the subject of algorithmic trading. The texts shown below are merely suggestions, but they are good suggestions. The content is not heavy on math notation, and the author has done a great job at providing examples. Additionally, the author is a well regarded instructor of the CQF Institute, and an adjunct Professor at the University of Miami (FL, USA)
+### Algorithmic Trading
+
+The texts shown below are merely suggestions. The content is not heavy on math notation, and the author has done a great job at providing examples. Additionally, the author is a well regarded instructor of the CQF Institute, and an adjunct Professor at the University of Miami (FL, USA)
 
 - [Python for Algorithmic Trading](https://books.google.com/books?id=q4SXzQEACAAJ&dq=inauthor:%22Yves+Hilpisch%22&hl=en&newbks=1&newbks_redir=1&sa=X&ved=2ahUKEwjF_tT2-ML5AhWmt4QIHZv4C2EQ6AF6BAgDEAI)
 - [Financial Theory with Python](https://books.google.com/books?id=M31EEAAAQBAJ&printsec=frontcover&dq=inauthor:%22Yves+Hilpisch%22&hl=en&newbks=1&newbks_redir=1&sa=X&ved=2ahUKEwjF_tT2-ML5AhWmt4QIHZv4C2EQ6AF6BAgLEAI)
 - [Artificial Intelligence in Finance](https://books.google.com/books?id=6WGEzQEACAAJ&dq=inauthor:%22Yves+Hilpisch%22&hl=en&newbks=1&newbks_redir=1&sa=X&ved=2ahUKEwjF_tT2-ML5AhWmt4QIHZv4C2EQ6AF6BAgEEAI)
 - [Derivatives Analytics with Python](https://www.google.com/books/edition/Derivatives_Analytics_with_Python/5IvACQAAQBAJ?hl=en)
+
+
+### Python
+
+As with the above, the authors of the books show below are considered standard suggestions.
+
+- [Fluent Python](https://www.google.com/books/edition/Fluent_Python/H1SXzQEACAAJ?hl=en)
+- [High Performance Python](https://www.google.com/books/edition/High_Performance_Python/GMyzyQEACAAJ?hl=en)
+- [Python for Data Analysis](https://wesmckinney.com/book/)
