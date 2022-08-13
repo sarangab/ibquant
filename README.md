@@ -13,11 +13,15 @@ A minimal command line trading tool for the Interactive Brokers APIs.
 
 ibtrader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interface with TWS, and uses [hydra](https://github.com/facebookresearch/hydra), [click](https://github.com/pallets/click) and [rich](https://github.com/Textualize/rich) to provide the command line interface.
 
-ibtrader provides [ib.Trader](https://github.com/JustinGoheen/ibtrader/blob/main/ibtrader/core/trader.py), which is influenced by machine learning frameworks Ray and Lightning, which use a Trainer class to drive a learning agent.
+ibtrader provides
 
-Aside from Trader, ibtrader also provides the following core classes:
+## Core Classes
 
-`Indicator` provides a base class for the [ibtrader.indicators](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/indicators) borrowed from [thinkorswim](https://tlc.thinkorswim.com/center/reference/Tech-Indicators) and IBKR [Technical Analytics](https://guides.interactivebrokers.com/tws/twsguide.htm#chartindicatorstop.htm?TocPath=Technical%2520Analytics%257CChart%2520Indicators%257C_____0)
+`Trader` drives the trading agent via some user defined strategy
+
+` Strategy` provides a base class for user defined strategies
+
+`Indicator` provides a base class for the [ibtrader.indicators](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/indicators)
 
 `Contract` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
 
@@ -57,3 +61,31 @@ Aside from using ib-insync, ibtrader also provides users with:
 - [pyfolio-reloaded](https://github.com/stefan-jansen/pyfolio-reloaded)
 - [zipline-reloaded](https://github.com/stefan-jansen/zipline-reloaded)
 - [yfinance](https://github.com/ranaroussi/yfinance)
+
+
+## Indicators and Studies
+
+TA-Lib is used to create indicators and studies when possible, this ensures accuracy; however, the roadmap is to implement these indicators with PyTorch core, and eventually torcharrow (upon stable release of torcharrow).
+
+Indicator definitions can be found at:
+
+- [Trading Technologies](https://library.tradingtechnologies.com/trade/chrt-technical-indicators.html)
+- thinkorswim [Studies Library](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/studies-library)
+- IBKR [Technical Analytics](https://guides.interactivebrokers.com/tws/twsguide.htm#chartindicatorstop.htm?TocPath=Technical%2520Analytics%257CChart%2520Indicators%257C_____0)
+
+Sample Strategies can be found at:
+
+- thinkorswim [Strategies Library](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/strategies)
+
+## Education and Other Resources
+
+Several reputable resources exist for free trading and investing education.
+
+- Interactive Brokers [Traders' Academy](https://tradersacademy.online/)
+- Interactive Brokers [Quant Blog](https://www.tradersinsight.news/category/ibkr-quant-news/)
+- Interactive Brokers [YouTube](https://www.youtube.com/c/interactivebrokers)
+- Quantopian [YouTube](https://www.youtube.com/channel/UC606MUq45P3zFLa4VGKbxsg)
+- Alpha Architect [Blog](https://alphaarchitect.com/blog/)
+- arXiv Quantitative Finance [papers](https://arxiv.org/archive/q-fin)
+- [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
+- CME Group [Education](https://www.cmegroup.com/education.html)
