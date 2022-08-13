@@ -16,8 +16,6 @@ from abc import ABC
 
 
 class LoggerHooks(ABC):
-    """a"""
-
     def __init__(self):
         super().__init__()
 
