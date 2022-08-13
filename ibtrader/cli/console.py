@@ -12,12 +12,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from pathlib import Path
-
 import click
 
 
 @click.group()
-def main():
+def account():
+    pass
+
+
+@account.command()
+def balance():
+    pass
+
+
+@account.command()
+def trades():
+    pass
+
+
+@account.command()
+def buying_power():
+    pass
+
+
+@account.command()
+def daily_pnl():
+    pass
+
+
+@click.group()
+def trader():
+    pass
+
+
+@trader.command("run")
+@click.option("strategy")
+@click.option("market")
+@click.option("contracts")
+@click.option("ordertype")
+@click.option("logger")
+def run(strategy, market, contracts, ordertype, logger):
+    pass
+
+
+@click.group()
+def backtest():
+    pass
+
+
+@backtest.command("fetch-data")
+@click.option("-contract")
+@click.option("-end-date")
+@click.option("-duration")
+@click.option("-barsize")
+@click.option("-show")
+@click.option("-use-rth")
+@click.option("-dateformat")
+@click.option("-keep-updated")
+def fetch_data():
     pass

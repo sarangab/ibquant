@@ -47,7 +47,9 @@ exclude = [
 ]
 
 [tool.poetry.scripts]
-trader = "ibquant.cli.console:main"
+trader = "ibquant.cli.console:trader"
+backtest = "ibquant.cli.console:backtest"
+account = "ibquant.cli.console:account"
 
 [tool.poetry.dependencies]
 python = ">3.9, <3.11"
