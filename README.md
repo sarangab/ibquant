@@ -72,27 +72,13 @@ TA-Lib is used to create indicators and studies when possible, this ensures accu
 
 Indicator definitions can be found at:
 
-- [Trading Technologies](https://library.tradingtechnologies.com/trade/chrt-technical-indicators.html)
+- Trading Technologies [Glossary](https://library.tradingtechnologies.com/trade/chrt-technical-indicators.html)
 - thinkorswim [Studies Library](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/studies-library)
-- IBKR [Technical Analytics](https://guides.interactivebrokers.com/tws/twsguide.htm#chartindicatorstop.htm?TocPath=Technical%2520Analytics%257CChart%2520Indicators%257C_____0)
+- IBKR [Technical Analytics Guide](https://guides.interactivebrokers.com/tws/twsguide.htm#chartindicatorstop.htm?TocPath=Technical%2520Analytics%257CChart%2520Indicators%257C_____0)
 
 Sample Strategies can be found at:
 
 - thinkorswim [Strategies Library](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/strategies)
-
-## Education and Other Resources
-
-Several reputable resources exist for free trading and investing education.
-
-- Interactive Brokers [Traders' Academy](https://tradersacademy.online/)
-- Interactive Brokers [Quant Blog](https://www.tradersinsight.news/category/ibkr-quant-news/)
-- Interactive Brokers [YouTube](https://www.youtube.com/c/interactivebrokers)
-- Quantopian [YouTube](https://www.youtube.com/channel/UC606MUq45P3zFLa4VGKbxsg)
-- Alpha Architect [Blog](https://alphaarchitect.com/blog/)
-- arXiv Quantitative Finance [papers](https://arxiv.org/archive/q-fin)
-- [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
-- CME Group [Education](https://www.cmegroup.com/education.html)
-
 
 ## Suggested Reading and References
 
@@ -113,3 +99,24 @@ As with the above, the authors of the books show below are considered standard s
 - [Fluent Python](https://www.google.com/books/edition/Fluent_Python/H1SXzQEACAAJ?hl=en)
 - [High Performance Python](https://www.google.com/books/edition/High_Performance_Python/GMyzyQEACAAJ?hl=en)
 - [Python for Data Analysis](https://wesmckinney.com/book/)
+
+
+### Trading Information and Education
+
+Several reputable resources exist for free trading and investing education.
+
+- Interactive Brokers [Traders' Academy](https://tradersacademy.online/)
+- Interactive Brokers [Quant Blog](https://www.tradersinsight.news/category/ibkr-quant-news/)
+- Interactive Brokers [YouTube](https://www.youtube.com/c/interactivebrokers)
+- Quantopian [YouTube](https://www.youtube.com/channel/UC606MUq45P3zFLa4VGKbxsg)
+- Alpha Architect [Blog](https://alphaarchitect.com/blog/)
+- arXiv Quantitative Finance [papers](https://arxiv.org/archive/q-fin)
+- [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
+- CME Group [Education](https://www.cmegroup.com/education.html)
+- CME Group [YouTube](https://www.youtube.com/user/cmegroup)
+- CBOE [Options Institute](https://www.cboe.com/optionsinstitute/)
+- CBOE [YouTube](https://www.youtube.com/user/CBOEtv)
+- FINRA [Investors Education](https://www.finra.org/investors#/)
+- NASDAQ [News and Insights](https://www.nasdaq.com/news-and-insights)
+- TD  Ameritrade Network [YouTube](https://www.youtube.com/c/TDAmeritradeNetwork)
+- Corporate Finance Institute [free courses](https://corporatefinanceinstitute.com/collections/)
