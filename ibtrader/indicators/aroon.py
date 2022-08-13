@@ -12,9 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC
-
-
-class Study(ABC):
-    def __init__(self):
-        super().__init__()
+# see https://tlc.thinkorswim.com/center/reference/Tech-Indicators/studies-library/A-B/AroonOscillator

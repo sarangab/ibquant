@@ -14,7 +14,7 @@
 
 [tool.poetry]
 name = "ibtrader"
-version = "0.0.5.2"
+version = "0.0.5.3"
 description = "A Python Framework for Interactive Brokers TWS API"
 authors = ["Justin R. Goheen"]
 license = "Apache-2.0"
