@@ -103,7 +103,7 @@ As with the above, the authors of the books show below are considered standard s
 
 ### Trading Information and Education
 
-Several reputable resources exist for free trading and investing education.
+The resources shown below are free, and sourced from reputable sources.
 
 - Interactive Brokers [Traders' Academy](https://tradersacademy.online/)
 - Interactive Brokers [Quant Blog](https://www.tradersinsight.news/category/ibkr-quant-news/)
