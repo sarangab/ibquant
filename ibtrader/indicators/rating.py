@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# see https://tlc.thinkorswim.com/center/reference/Tech-Indicators/strategies/T-Z/TechnicalStockRatingStrat
+# see https://tlc.thinkorswim.com/center/reference/Tech-Indicators/studies-library/T-U/TechnicalStockRating
