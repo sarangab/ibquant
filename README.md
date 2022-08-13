@@ -88,3 +88,13 @@ Several reputable resources exist for free trading and investing education.
 - arXiv Quantitative Finance [papers](https://arxiv.org/archive/q-fin)
 - [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
 - CME Group [Education](https://www.cmegroup.com/education.html)
+
+
+## Suggested Reading and References
+
+Many texts exist on the subject of algorithmic trading. The texts shown below are merely suggestions, but they are good suggestions. The content is not heavy on math notation, and the author has done a great job at providing examples. Additionally, the author is a well regarded instructor of the CQF Institute, and an adjunct Professor at the University of Miami (FL, USA)
+
+- [Python for Algorithmic Trading](https://books.google.com/books?id=q4SXzQEACAAJ&dq=inauthor:%22Yves+Hilpisch%22&hl=en&newbks=1&newbks_redir=1&sa=X&ved=2ahUKEwjF_tT2-ML5AhWmt4QIHZv4C2EQ6AF6BAgDEAI)
+- [Financial Theory with Python](https://books.google.com/books?id=M31EEAAAQBAJ&printsec=frontcover&dq=inauthor:%22Yves+Hilpisch%22&hl=en&newbks=1&newbks_redir=1&sa=X&ved=2ahUKEwjF_tT2-ML5AhWmt4QIHZv4C2EQ6AF6BAgLEAI)
+- [Artificial Intelligence in Finance](https://books.google.com/books?id=6WGEzQEACAAJ&dq=inauthor:%22Yves+Hilpisch%22&hl=en&newbks=1&newbks_redir=1&sa=X&ved=2ahUKEwjF_tT2-ML5AhWmt4QIHZv4C2EQ6AF6BAgEEAI)
+- [Derivatives Analytics with Python](https://www.google.com/books/edition/Derivatives_Analytics_with_Python/5IvACQAAQBAJ?hl=en)
