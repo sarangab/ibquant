@@ -51,7 +51,14 @@ def trader():
 @click.option("contracts")
 @click.option("ordertype")
 @click.option("logger")
-def run(strategy, market, contracts, ordertype, logger):
+def run_trader(strategy, market, contracts, ordertype, logger):
+    pass
+
+
+@trader.command("plot")
+@click.option("market")
+@click.option("indicators")
+def plot(market, indicators):
     pass
 
 
@@ -70,4 +77,12 @@ def backtest():
 @click.option("-dateformat")
 @click.option("-keep-updated")
 def fetch_data():
+    pass
+
+
+@backtest.command("run")
+@click.option("max-drawdown")
+@click.option("long-short")
+@click.option("execution-window")
+def run_backtest(maxdd, long_short, execution_window):
     pass
