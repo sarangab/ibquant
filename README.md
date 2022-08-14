@@ -59,12 +59,12 @@ poetry add ibtrader
 
 Aside from using ib-insync, ibtrader also provides users with:
 
-- [QuantLib](https://github.com/lballabio/QuantLib)
-- [alphalens-reloaded](https://github.com/stefan-jansen/alphalens-reloaded)
-- [empyrical-reloaded](https://github.com/stefan-jansen/empyrical-reloaded)
-- [pyfolio-reloaded](https://github.com/stefan-jansen/pyfolio-reloaded)
-- [zipline-reloaded](https://github.com/stefan-jansen/zipline-reloaded)
-- [yfinance](https://github.com/ranaroussi/yfinance)
+- [QuantLib](https://quantlib-python-docs.readthedocs.io/en/latest/)
+- [alphalens-reloaded](https://alphalens.ml4trading.io/)
+- [empyrical-reloaded](https://empyrical.ml4trading.io/)
+- [pyfolio-reloaded](https://pyfolio.ml4trading.io/)
+- [zipline-reloaded](https://zipline.ml4trading.io/)
+- [PyEX](https://github.com/iexcloud/pyEX)
 
 
 ## Factors, Indicators, Studies, Strategies
