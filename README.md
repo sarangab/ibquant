@@ -13,14 +13,16 @@ _this tool is in active development. expect things to break or not function at a
 
 ## Overview
 
-IB Trader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interface with TWS or Gateway, and uses [hydra](https://github.com/facebookresearch/hydra), [click](https://github.com/pallets/click) and [rich](https://github.com/Textualize/rich) to provide the command line tool.
+IB Trader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interface with Interactive Brokers TWS or Gateway.
 
 
 ## Core Classes
 
-`Trader` drives the trading agent via some user defined strategy
+`Trader` drives the user defined strategy in live trading
 
 `Brute` enables brute force optimization of rules based trading strategies
+
+`Learner` is used to optimize machine learning based strategies
 
 `Strategy` provides a base class for user defined strategies
 
@@ -111,7 +113,6 @@ The resources shown below are free, and sourced from reputable providers.
 - Alpha Architect [Blog](https://alphaarchitect.com/blog/)
 - [Quantocracy](https://quantocracy.com/) Blogs
 - arXiv Quantitative Finance [papers](https://arxiv.org/archive/q-fin)
-- [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
 - CME Group [Education](https://www.cmegroup.com/education.html)
 - CME Group [YouTube](https://www.youtube.com/user/cmegroup)
 - CBOE [Options Institute](https://www.cboe.com/optionsinstitute/)
@@ -120,3 +121,5 @@ The resources shown below are free, and sourced from reputable providers.
 - NASDAQ [News and Insights](https://www.nasdaq.com/news-and-insights)
 - TD  Ameritrade Network [YouTube](https://www.youtube.com/c/TDAmeritradeNetwork)
 - Corporate Finance Institute [free courses](https://corporatefinanceinstitute.com/collections/)
+- Man Group [Insights](https://www.man.com/insights)
+- [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
