@@ -58,7 +58,6 @@ poetry add ibtrader
 Aside from using ib-insync, ibtrader also provides users with:
 
 - [QuantLib](https://github.com/lballabio/QuantLib)
-- [TA-Lib](https://github.com/mrjbq7/ta-lib) (follow the installation instructions shown on that page)
 - [alphalens-reloaded](https://github.com/stefan-jansen/alphalens-reloaded)
 - [empyrical-reloaded](https://github.com/stefan-jansen/empyrical-reloaded)
 - [pyfolio-reloaded](https://github.com/stefan-jansen/pyfolio-reloaded)
@@ -66,9 +65,9 @@ Aside from using ib-insync, ibtrader also provides users with:
 - [yfinance](https://github.com/ranaroussi/yfinance)
 
 
-## Indicators and Studies
+## Factors, Indicators, Studies, Strategies
 
-TA-Lib is used to create indicators and studies when possible, this ensures accuracy; however, the roadmap is to implement these indicators with PyTorch core, and eventually torcharrow (upon stable release of torcharrow).
+Zipline Reloaded provides factors and indicators in the [pipeline API](https://zipline.ml4trading.io/api-reference.html#pipeline-api).
 
 Indicator definitions can be found at:
 
