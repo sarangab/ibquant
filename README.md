@@ -93,7 +93,7 @@ The texts shown below are merely suggestions. The content is not heavy on math n
 
 ### Python
 
-As with the above, the authors of the books shown below are considered standard suggestions.
+As with the above, the books shown below are considered standard suggestions.
 
 - [Fluent Python](https://www.google.com/books/edition/Fluent_Python/H1SXzQEACAAJ?hl=en)
 - [High Performance Python](https://www.google.com/books/edition/High_Performance_Python/GMyzyQEACAAJ?hl=en)
