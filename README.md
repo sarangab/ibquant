@@ -58,7 +58,7 @@ poetry add ibtrader
 Aside from using ib-insync, ibtrader also provides users with:
 
 - [QuantLib](https://github.com/lballabio/QuantLib)
-- [TA-Lib](https://github.com/mrjbq7/ta-lib)
+- [TA-Lib](https://github.com/mrjbq7/ta-lib) (follow the installation instructions shown on that page)
 - [alphalens-reloaded](https://github.com/stefan-jansen/alphalens-reloaded)
 - [empyrical-reloaded](https://github.com/stefan-jansen/empyrical-reloaded)
 - [pyfolio-reloaded](https://github.com/stefan-jansen/pyfolio-reloaded)
