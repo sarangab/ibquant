@@ -103,13 +103,14 @@ As with the above, the authors of the books show below are considered standard s
 
 ### Trading Information and Education
 
-The resources shown below are free, and sourced from reputable sources.
+The resources shown below are free, and sourced from reputable providers.
 
 - Interactive Brokers [Traders' Academy](https://tradersacademy.online/)
 - Interactive Brokers [Quant Blog](https://www.tradersinsight.news/category/ibkr-quant-news/)
 - Interactive Brokers [YouTube](https://www.youtube.com/c/interactivebrokers)
 - Quantopian [YouTube](https://www.youtube.com/channel/UC606MUq45P3zFLa4VGKbxsg)
 - Alpha Architect [Blog](https://alphaarchitect.com/blog/)
+- [Quantocracy](https://quantocracy.com/) Blogs
 - arXiv Quantitative Finance [papers](https://arxiv.org/archive/q-fin)
 - [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
 - CME Group [Education](https://www.cmegroup.com/education.html)
