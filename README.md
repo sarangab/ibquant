@@ -6,6 +6,8 @@
 
 A command line interface and research framework for the Interactive Brokers APIs.
 
+_this tool is in active development. expect things to break or not function at all._
+
 
 </div>
 
@@ -30,8 +32,6 @@ IB Trader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interfa
 
 
 ## Installation
-
-> ibtrader is in active development. expect things to break or not function at all.
 
 install the nightly version with:
 
