@@ -75,7 +75,7 @@ Indicator definitions can be found at:
 - thinkorswim [Studies Library](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/studies-library)
 - IBKR [Technical Analytics Guide](https://guides.interactivebrokers.com/tws/twsguide.htm#chartindicatorstop.htm?TocPath=Technical%2520Analytics%257CChart%2520Indicators%257C_____0)
 
-Sample Strategies can be found at:
+Sample strategies can be found via the link below. Please note that it is the responsibility of the user to code, backtest, and employ a strategy on their own. I will not release a public version of ibtrader that ships with automated strategies.
 
 - thinkorswim [Strategies Library](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/strategies)
 
@@ -93,7 +93,7 @@ The texts shown below are merely suggestions. The content is not heavy on math n
 
 ### Python
 
-As with the above, the authors of the books show below are considered standard suggestions.
+As with the above, the authors of the books shown below are considered standard suggestions.
 
 - [Fluent Python](https://www.google.com/books/edition/Fluent_Python/H1SXzQEACAAJ?hl=en)
 - [High Performance Python](https://www.google.com/books/edition/High_Performance_Python/GMyzyQEACAAJ?hl=en)
