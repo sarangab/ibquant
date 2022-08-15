@@ -65,6 +65,7 @@ Aside from using ib-insync, ibtrader also provides users with:
 - [pyfolio-reloaded](https://pyfolio.ml4trading.io/)
 - [zipline-reloaded](https://zipline.ml4trading.io/)
 - [PyEX](https://github.com/iexcloud/pyEX)
+- [nasdaq-data-link](https://docs.data.nasdaq.com/docs/python-installation)
 
 
 ## Factors, Indicators, Studies, Strategies
