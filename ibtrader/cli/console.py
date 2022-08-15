@@ -56,7 +56,7 @@ def trade():
     pass
 
 
-@trade.command("run")
+@trade.command("trade")
 @click.option("strategy")
 @click.option("market")
 @click.option("contracts")
@@ -108,6 +108,7 @@ def run_backtest(maxdd, long_short, execution_window):
 
 # ---------------
 # zipline commands
+# https://zipline.ml4trading.io/beginner-tutorial.html#command-line-interface
 # ---------------
 
 # ---------------
