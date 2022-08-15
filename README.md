@@ -22,11 +22,11 @@ IB Trader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interfa
 
 `Brute` enables brute force optimization of rules based trading strategies
 
-`Learner` is used to optimize machine learning based strategies
+`Learner` is used to optimize gradient based learning strategies
 
 `Strategy` provides a base class for user defined strategies
 
-`Indicator` provides a base class for the [ibtrader.indicators](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/indicators)
+`Factor` provides a base class for the [ibtrader.factors](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/factors)
 
 `Contract` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
 
@@ -60,17 +60,17 @@ poetry add ibtrader
 Aside from using ib-insync, ibtrader also provides users with:
 
 - [QuantLib](https://quantlib-python-docs.readthedocs.io/en/latest/)
-- [alphalens-reloaded](https://alphalens.ml4trading.io/)
-- [empyrical-reloaded](https://empyrical.ml4trading.io/)
-- [pyfolio-reloaded](https://pyfolio.ml4trading.io/)
-- [zipline-reloaded](https://zipline.ml4trading.io/)
-- [PyEX](https://github.com/iexcloud/pyEX)
-- [nasdaq-data-link](https://docs.data.nasdaq.com/docs/python-installation)
-
+- [alphalens-reloaded](https://alphalens.ml4trading.io/): community maintained version of Quantopian alphalens
+- [empyrical-reloaded](https://empyrical.ml4trading.io/): community maintained version of Quantopian empyrical
+- [pyfolio-reloaded](https://pyfolio.ml4trading.io/): community maintained version of Quantopian pyfolio
+- [zipline-reloaded](https://zipline.ml4trading.io/): community maintained version of Quantopian zipline
+- [nasdaq-data-link](https://docs.data.nasdaq.com/docs/python-installation): formerly known as Quandl
+- [PyEX](https://pyex.readthedocs.io/en/latest/): an IEX Cloud API tool
+- [TA-Lib](http://mrjbq7.github.io/ta-lib/): a technical analysis library common to PyEX and Zipline
 
 ## Factors, Indicators, Studies, Strategies
 
-Zipline Reloaded provides factors and indicators in the [pipeline API](https://zipline.ml4trading.io/api-reference.html#pipeline-api).
+Zipline Reloaded provides factors and indicators in the [pipeline API](https://zipline.ml4trading.io/api-reference.html#pipeline-api). TA-Lib is installed as a dependency of Zipline. Most factors and indicators of both libraries will be reachable via ibtrader.factors.
 
 Indicator definitions can be found at:
 
@@ -102,25 +102,30 @@ As with the above, the books shown below are considered standard suggestions.
 - [High Performance Python](https://www.google.com/books/edition/High_Performance_Python/GMyzyQEACAAJ?hl=en)
 - [Python for Data Analysis](https://wesmckinney.com/book/)
 
+Aside from the texts, and possibly a more suitable way to learn professional level Python programming, is to look at the source code of the Quantopian reloaded projects.
+
 
 ### Trading Information and Education
 
 The resources shown below are free, and sourced from reputable providers.
 
+- TD Ameritrade Network [YouTube](https://www.youtube.com/c/TDAmeritradeNetwork)
 - Interactive Brokers [Traders' Academy](https://tradersacademy.online/)
 - Interactive Brokers [Quant Blog](https://www.tradersinsight.news/category/ibkr-quant-news/)
 - Interactive Brokers [YouTube](https://www.youtube.com/c/interactivebrokers)
+- CME Group [Markets](https://www.cmegroup.com/markets.html)
+- CME Group [Education](https://www.cmegroup.com/education.html)
+- CME Group [YouTube](https://www.youtube.com/user/cmegroup)
+- CBOE [Markets](https://www.cboe.com/markets/)
+- CBOE [Options Institute](https://www.cboe.com/optionsinstitute/)
+- CBOE [YouTube](https://www.youtube.com/user/CBOEtv)
+- NASDAQ [Market Activity](https://www.nasdaq.com/market-activity)
+- NASDAQ [News and Insights](https://www.nasdaq.com/news-and-insights)
 - Quantopian [YouTube](https://www.youtube.com/channel/UC606MUq45P3zFLa4VGKbxsg)
+- [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
 - Alpha Architect [Blog](https://alphaarchitect.com/blog/)
 - [Quantocracy](https://quantocracy.com/) Blogs
 - arXiv Quantitative Finance [papers](https://arxiv.org/archive/q-fin)
-- CME Group [Education](https://www.cmegroup.com/education.html)
-- CME Group [YouTube](https://www.youtube.com/user/cmegroup)
-- CBOE [Options Institute](https://www.cboe.com/optionsinstitute/)
-- CBOE [YouTube](https://www.youtube.com/user/CBOEtv)
-- FINRA [Investors Education](https://www.finra.org/investors#/)
-- NASDAQ [News and Insights](https://www.nasdaq.com/news-and-insights)
-- TD  Ameritrade Network [YouTube](https://www.youtube.com/c/TDAmeritradeNetwork)
-- Corporate Finance Institute [free courses](https://corporatefinanceinstitute.com/collections/)
 - Man Group [Insights](https://www.man.com/insights)
-- [tastytrade](https://tastytrade.thinkific.com/) (the original thinkorswim team)
+- FINRA [Investors Education](https://www.finra.org/investors#/)
+- Corporate Finance Institute [free courses](https://corporatefinanceinstitute.com/collections/)
