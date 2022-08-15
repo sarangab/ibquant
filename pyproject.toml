@@ -80,6 +80,7 @@ torchserve = "^0.6.0"
 pytorch-lightning = "^1.7.1"
 ray = {extras = ["rllib"], version = "^1.13.0"}
 pyEX = "^0.5.0"
+Nasdaq-Data-Link = "^1.0.3"
 
 [tool.poetry.dev-dependencies]
 black = ">=22.1.0"
