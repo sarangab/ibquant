@@ -16,6 +16,14 @@ import click
 
 
 @click.group()
+def ibtrader():
+    pass
+
+
+# ---------------
+# account commands
+# ---------------
+@ibtrader.group()
 def account():
     pass
 
@@ -40,12 +48,15 @@ def daily_pnl():
     pass
 
 
-@click.group()
-def trader():
+# ---------------
+# trade commands
+# ---------------
+@ibtrader.group()
+def trade():
     pass
 
 
-@trader.command("run")
+@trade.command("run")
 @click.option("strategy")
 @click.option("market")
 @click.option("contracts")
@@ -55,14 +66,17 @@ def run_trader(strategy, market, contracts, ordertype, logger):
     pass
 
 
-@trader.command("plot")
+@trade.command("plot")
 @click.option("market")
 @click.option("indicators")
 def plot(market, indicators):
     pass
 
 
-@click.group()
+# ---------------
+# backtest commands
+# ---------------
+@ibtrader.group()
 def backtest():
     pass
 
@@ -86,3 +100,32 @@ def fetch_data():
 @click.option("execution-window")
 def run_backtest(maxdd, long_short, execution_window):
     pass
+
+
+# ---------------
+# performance commands
+# ---------------
+
+# ---------------
+# zipline commands
+# ---------------
+
+# ---------------
+# pyfolio commands
+# ---------------
+
+# ---------------
+# alphalens commands
+# ---------------
+
+# ---------------
+# empyrical commands
+# ---------------
+
+# ---------------
+# quandl commands
+# ---------------
+
+# ---------------
+# iex commands
+# ---------------

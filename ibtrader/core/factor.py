@@ -15,6 +15,6 @@
 from abc import ABC
 
 
-class Indicator(ABC):
+class Factor(ABC):
     def __init__(self):
         super().__init__()
