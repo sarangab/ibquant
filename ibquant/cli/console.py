@@ -18,7 +18,8 @@ import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
-from ibquant.cli.utilities import install_controller_if_confirmed
+from ibquant.cli.utilities import install_controller_if_confirmed, rich_table_from_ibiterable
+from ibquant.core.account import get_account_report
 
 IBC_LATEST = "3.14.0"
 os.environ["IBC_LATEST"] = IBC_LATEST
@@ -87,6 +88,19 @@ def get_group(group):
 @main.group()
 def account():
     pass
+
+
+@account.command("summary")
+@click.option("--platform", default="tws", type=click.Choice(["tws", "gateway"], case_sensitive=True), prompt=True)
+@click.option("--connection", default="live", type=click.Choice(["live", "paper"], case_sensitive=True), prompt=True)
+@click.option("--account", default="All", prompt=True)
+@click.option(
+    "--report-type", default="summary", type=click.Choice(["summary", "values"], case_sensitive=True), prompt=True
+)
+def account_summary(platform, connection, account, report_type):
+    account = account.upper() if account.upper() != "ALL" else account.title()
+    summary = get_account_report(platform, connection, account, report_type)
+    rich_table_from_ibiterable(summary)
 
 
 @account.command()

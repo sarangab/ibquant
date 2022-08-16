@@ -20,7 +20,7 @@ class Advisor:
         app = ib.IB()
         app.connect(
             Socket.host,
-            Socket.port["tws"]["live"],
+            Socket.port[os.environ["PLATFORM"]][os.environ["CONN"]],
             clientId=np.random.randint(0, 100000),
         )
         return app

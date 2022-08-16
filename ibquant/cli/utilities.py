@@ -13,8 +13,11 @@
 # limitations under the License.
 
 import os
+from typing import Optional
 
 from rich import print as rprint
+from rich.console import Console
+from rich.table import Table
 
 from ibquant.typing.types import PATHLIKE
 from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
@@ -44,3 +47,21 @@ def install_controller_if_confirmed(confirmed: bool, url: str, destination: PATH
     if not confirmed:
 
         rprint("[bold red]Exiting[/bold red]")
+
+
+def rich_table_from_ibiterable(ibiterable, title: Optional[str] = None, **kwargs):
+    # TITLE
+    table = Table(title=title)
+    # COLUMNS
+    if isinstance(ibiterable, list):
+        if hasattr(ibiterable[0], "_fields"):
+            fields = ibiterable[0]._fields
+    for field in fields:
+        table.add_column(field, justify="right", no_wrap=True)
+    # ROWS
+    for record in ibiterable:
+        record = record._asdict()
+        table.add_row(*[record.get(field) for field in fields])
+    # SHOW
+    console = Console()
+    console.print(table)
