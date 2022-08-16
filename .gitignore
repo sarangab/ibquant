@@ -140,3 +140,6 @@ dmypy.json
 
 # profiler, logger logs, model checkpoints, production models
 outputs/
+
+# added by ibtrader
+ibc/
