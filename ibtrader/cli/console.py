@@ -18,9 +18,10 @@ import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
-from ibtrader.utilities import add_ibconfigs_section, download, ignore_path, unzip
+from ibtrader.cli.utilities import install_controller_if_confirmed
 
 IBC_LATEST = "3.14.0"
+os.environ["IBC_LATEST"] = IBC_LATEST
 
 
 @click.group()
@@ -36,6 +37,7 @@ def login():
     print()
     os.environ["USER"] = Prompt.ask("Please enter your [green]username[/green]")
     os.environ["PASSWORD"] = Prompt.ask("Please enter your [green]password[/green]")
+    print()
     rprint(f"You entered: [green]{os.environ['USER']}[/green] and [green]{os.environ['PASSWORD']}[/green]")
     print()
 
@@ -50,26 +52,13 @@ def controller():
 def get_ibc(dest):
     valid_os = dict(mac="IBCMacos", windows="IBCWin", linux="IBCLinux")
     print()
-    operatingsys = Prompt.ask("Please confirm your operating system", choices=["mac", "windows", "linux"])
-    operatingsys = valid_os[operatingsys]
-    url = f"https://github.com/IbcAlpha/IBC/releases/download/{IBC_LATEST}/{operatingsys}-{IBC_LATEST}.zip"
-    rprint(f"This will install: [green]{url}[/green] to [green]{dest}[/green]")
+    opsys = Prompt.ask("Please confirm your operating system", choices=["mac", "windows", "linux"])
+    opsys = valid_os[opsys]
+    url = f"https://github.com/IbcAlpha/IBC/releases/download/{IBC_LATEST}/{opsys}-{IBC_LATEST}.zip"
+    rprint(f"This will install: [green]{url}[/green] to [green]{os.path.join(os.getcwd(), dest)}[/green]")
     rprint("[bold red]The destination directory will be added to the .gitignore[/bold red]")
     confirmed = Confirm.ask("Do you wish to continue?")
-    if confirmed:
-        ignore_path(dest, dest_is_dir=True)
-        if not os.path.isdir(dest):
-            os.mkdir(dest)
-        download_dest = os.path.join(os.getcwd(), dest)
-        download(
-            urls=[url],
-            dest_dir=download_dest,
-        )
-        filepath = os.path.join(download_dest, f"{operatingsys}-{IBC_LATEST}.zip")
-        unzip(filepath, download_dest)
-        add_ibconfigs_section(os.path.join(download_dest, "config.ini"))
-    if not confirmed:
-        rprint("[bold red]Exiting[/bold red]")
+    install_controller_if_confirmed(confirmed, url, dest, opsys)
     print()
 
 
