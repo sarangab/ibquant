@@ -15,6 +15,8 @@ _this tool is in active development. expect things to break or not function at a
 
 IB Trader leverages [ib-insync](https://github.com/erdewit/ib_insync) to interface with Interactive Brokers TWS or Gateway.
 
+The CLI is named ibcli; in terminal use `ibcli --help` to view available commands.
+
 
 ## Core Classes
 
