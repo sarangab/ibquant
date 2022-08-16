@@ -185,6 +185,21 @@ optional = ["numexpr (>=2.5.2)", "dask (>=0.9.0)", "pandas", "tables"]
 test = ["pytest (>=6.2.3)", "pytest-cov (>=2.11.1)", "coveralls (>=2.2.0)", "coveralls (==3.0.1)"]
 
 [[package]]
+name = "beautifulsoup4"
+version = "4.11.1"
+description = "Screen-scraping library"
+category = "main"
+optional = false
+python-versions = ">=3.6.0"
+
+[package.dependencies]
+soupsieve = ">1.2"
+
+[package.extras]
+lxml = ["lxml"]
+html5lib = ["html5lib"]
+
+[[package]]
 name = "black"
 version = "22.6.0"
 description = "The uncompromising code formatter."
@@ -2322,6 +2337,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "soupsieve"
+version = "2.3.2.post1"
+description = "A modern CSS selector implementation for Beautiful Soup."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "sqlalchemy"
 version = "1.4.40"
 description = "Database Abstraction Library"
@@ -2851,6 +2874,14 @@ MarkupSafe = ">=2.1.1"
 watchdog = ["watchdog"]
 
 [[package]]
+name = "wget"
+version = "3.2"
+description = "pure python download utility"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "xarray"
 version = "2022.6.0"
 description = "N-D labeled arrays and datasets in Python"
@@ -2959,7 +2990,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10, <3.12"
-content-hash = "46c609a957c070bc2f77610837978dbc9a5f718cef3fdf4ff28cf44b23db8849"
+content-hash = "5b2f6bd0cfc84bcef8f91df107b4224da3634381aa566d801ea72f0e8cf88da4"
 
 [metadata.files]
 absl-py = [
@@ -3101,6 +3132,10 @@ bcolz-zipline = [
     {file = "bcolz_zipline-1.2.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:1afcc5cf2e01fdfca1d75e0e548dbb133401917f7c9e14335c35b96db33ce001"},
     {file = "bcolz_zipline-1.2.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4e43b1cc34c730cebad6ee8a0cc4e26c9acaa2c70880620e5f36bacc51759dd2"},
     {file = "bcolz_zipline-1.2.4-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:8a58d78579ccd071c8779710d070a4dff77acb37e298a74d3e24108d968e9d91"},
+]
+beautifulsoup4 = [
+    {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
+    {file = "beautifulsoup4-4.11.1.tar.gz", hash = "sha256:ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"},
 ]
 black = [
     {file = "black-22.6.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:f586c26118bc6e714ec58c09df0157fe2d9ee195c764f630eb0d8e7ccce72e69"},
@@ -5059,6 +5094,10 @@ sortedcontainers = [
     {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
+soupsieve = [
+    {file = "soupsieve-2.3.2.post1-py3-none-any.whl", hash = "sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759"},
+    {file = "soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
+]
 sqlalchemy = [
     {file = "SQLAlchemy-1.4.40-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:b07fc38e6392a65935dc8b486229679142b2ea33c94059366b4d8b56f1e35a97"},
     {file = "SQLAlchemy-1.4.40-cp27-cp27m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:fb4edb6c354eac0fcc07cb91797e142f702532dbb16c1d62839d6eec35f814cf"},
@@ -5326,6 +5365,9 @@ websocket-client = [
 werkzeug = [
     {file = "Werkzeug-2.2.2-py3-none-any.whl", hash = "sha256:f979ab81f58d7318e064e99c4506445d60135ac5cd2e177a2de0089bfd4c9bd5"},
     {file = "Werkzeug-2.2.2.tar.gz", hash = "sha256:7ea2d48322cc7c0f8b3a215ed73eabd7b5d75d0b50e31ab006286ccff9e00b8f"},
+]
+wget = [
+    {file = "wget-3.2.zip", hash = "sha256:35e630eca2aa50ce998b9b1a127bb26b30dfee573702782aa982f875e3f16061"},
 ]
 xarray = [
     {file = "xarray-2022.6.0-py3-none-any.whl", hash = "sha256:c052208afc3f261984049f28b962d64eb6741a7967898315642f5da85448b6b0"},
