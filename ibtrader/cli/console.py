@@ -18,7 +18,7 @@ import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
-from ibtrader.utilities import download, ignore_path, unzip
+from ibtrader.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 IBC_LATEST = "3.14.0"
 
@@ -67,6 +67,7 @@ def get_ibc(dest):
         )
         filepath = os.path.join(download_dest, f"{operatingsys}-{IBC_LATEST}.zip")
         unzip(filepath, download_dest)
+        add_ibconfigs_section(os.path.join(download_dest, "config.ini"))
     if not confirmed:
         rprint("[bold red]Exiting[/bold red]")
     print()
