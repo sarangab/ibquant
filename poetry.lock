@@ -2874,14 +2874,6 @@ MarkupSafe = ">=2.1.1"
 watchdog = ["watchdog"]
 
 [[package]]
-name = "wget"
-version = "3.2"
-description = "pure python download utility"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "xarray"
 version = "2022.6.0"
 description = "N-D labeled arrays and datasets in Python"
@@ -2990,7 +2982,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10, <3.12"
-content-hash = "5b2f6bd0cfc84bcef8f91df107b4224da3634381aa566d801ea72f0e8cf88da4"
+content-hash = "d633ed2166492ca85fbb5ae0cb85b4017352d5fb459df6bb82feed0e62cc3022"
 
 [metadata.files]
 absl-py = [
@@ -5365,9 +5357,6 @@ websocket-client = [
 werkzeug = [
     {file = "Werkzeug-2.2.2-py3-none-any.whl", hash = "sha256:f979ab81f58d7318e064e99c4506445d60135ac5cd2e177a2de0089bfd4c9bd5"},
     {file = "Werkzeug-2.2.2.tar.gz", hash = "sha256:7ea2d48322cc7c0f8b3a215ed73eabd7b5d75d0b50e31ab006286ccff9e00b8f"},
-]
-wget = [
-    {file = "wget-3.2.zip", hash = "sha256:35e630eca2aa50ce998b9b1a127bb26b30dfee573702782aa982f875e3f16061"},
 ]
 xarray = [
     {file = "xarray-2022.6.0-py3-none-any.whl", hash = "sha256:c052208afc3f261984049f28b962d64eb6741a7967898315642f5da85448b6b0"},

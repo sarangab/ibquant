@@ -14,7 +14,7 @@
 
 [tool.poetry]
 name = "ibtrader"
-version = "0.0.7"
+version = "0.0.8"
 description = "A Python Framework for Interactive Brokers TWS API"
 authors = ["Justin R. Goheen"]
 license = "Apache-2.0"
@@ -47,7 +47,7 @@ exclude = [
 ]
 
 [tool.poetry.scripts]
-ibcli = "ibtrader.cli.console:main"
+ib = "ibtrader.cli.console:main"
 
 [tool.poetry.dependencies]
 python = ">=3.10, <3.12"
@@ -80,7 +80,6 @@ ray = {extras = ["rllib"], version = "^1.13.0"}
 pyEX = "^0.5.0"
 Nasdaq-Data-Link = "^1.0.3"
 beautifulsoup4 = "^4.11.1"
-wget = "^3.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
