@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 import ib_insync as ib
 from ibtrader.dataclasses.advisor import AdvisorDataTypes
-from ibtrader.dataclasses.connect import ConnectKey
+from ibtrader.dataclasses.connect import Socket
 
 
 @dataclass
@@ -19,8 +19,8 @@ class Advisor:
     def run():
         app = ib.IB()
         app.connect(
-            "127.0.0.1",
-            ConnectKey.socketport["tws"]["live"],
+            Socket.host,
+            Socket.port["tws"]["live"],
             clientId=np.random.randint(0, 100000),
         )
         return app
