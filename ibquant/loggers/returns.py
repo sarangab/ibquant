@@ -15,7 +15,7 @@
 from typing import Tuple
 
 from ib_insync.ib import IB
-from ibtrader.hooks.logger import LoggerHooks
+from ibquant.hooks.logger import LoggerHooks
 
 ACCOUNT_TYPE = "IB.accountSummary"
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 [tool.poetry]
-name = "ibtrader"
+name = "ibquant"
 version = "0.0.8"
 description = "A Python Framework for Interactive Brokers TWS API"
 authors = ["Justin R. Goheen"]
@@ -47,7 +47,7 @@ exclude = [
 ]
 
 [tool.poetry.scripts]
-ib = "ibtrader.cli.console:main"
+ib = "ibquant.cli.console:main"
 
 [tool.poetry.dependencies]
 python = ">=3.10, <3.12"

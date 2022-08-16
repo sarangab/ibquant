@@ -18,7 +18,7 @@ from rich.progress import (
     TransferSpeedColumn,
 )
 
-from ibtrader.typing.types import PATHLIKE
+from ibquant.typing.types import PATHLIKE
 
 progress = Progress(
     TextColumn("[bold blue]{task.fields[filename]}", justify="right"),

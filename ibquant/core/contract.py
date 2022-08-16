@@ -12,19 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
 
-from ibtrader.hooks.account import AccountHooks
-from ibtrader.hooks.connection import ConnectionHooks
-from ibtrader.hooks.contract import ContractHooks
-from ibtrader.hooks.trader import TraderHooks
-from ibtrader.loggers.returns import ReturnsLogger
+from ib_insync.contract import Contract as IBContract
+from ibquant.hooks.contract import ContractHooks
 
 
-class Trader(TraderHooks, ConnectionHooks, ContractHooks, AccountHooks):
-    def __init__(self, logger: Optional["ReturnsLogger"]):
+class Contract(IBContract, ContractHooks):
+    def __init__(self):
         super().__init__()
-        self.logger = logger
-
-    def trade(self, study, market):
-        ...

@@ -1,4 +1,4 @@
-from ibtrader.hooks.brute import BruteHooks
+from ibquant.hooks.brute import BruteHooks
 
 
 class Brute(BruteHooks):

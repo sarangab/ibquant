@@ -16,8 +16,8 @@ import os
 
 from rich import print as rprint
 
-from ibtrader.typing.types import PATHLIKE
-from ibtrader.utilities import add_ibconfigs_section, download, ignore_path, unzip
+from ibquant.typing.types import PATHLIKE
+from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 
 def install_controller_if_confirmed(confirmed: bool, url: str, destination: PATHLIKE, opsys: str):

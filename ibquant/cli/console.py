@@ -18,7 +18,7 @@ import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
-from ibtrader.cli.utilities import install_controller_if_confirmed
+from ibquant.cli.utilities import install_controller_if_confirmed
 
 IBC_LATEST = "3.14.0"
 os.environ["IBC_LATEST"] = IBC_LATEST

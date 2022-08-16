@@ -5,8 +5,8 @@ import numpy as np
 from bs4 import BeautifulSoup
 
 import ib_insync as ib
-from ibtrader.dataclasses.advisor import AdvisorDataTypes
-from ibtrader.dataclasses.connect import Socket
+from ibquant.dataclasses.advisor import AdvisorDataTypes
+from ibquant.dataclasses.connect import Socket
 
 
 @dataclass
