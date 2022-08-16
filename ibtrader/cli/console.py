@@ -18,6 +18,8 @@ import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
+from ibtrader.utilities import download, ignore_path, unzip
+
 IBC_LATEST = "3.14.0"
 
 
@@ -38,22 +40,41 @@ def login():
     print()
 
 
-@main.command("get-ibc")
-def get_ibc():
+@main.group()
+def controller():
+    pass
+
+
+@controller.command("install")
+@click.option("--dest", default="ibc")
+def get_ibc(dest):
     valid_os = dict(mac="IBCMacos", windows="IBCWin", linux="IBCLinux")
     print()
-    _os = Prompt.ask("Please confirm your operating system", choices=["mac", "windows", "linux"])
-    rprint(f"You entered: [green]{_os}[green]")
-    _os = valid_os[_os]
-    url = f"https://github.com/IbcAlpha/IBC/releases/download/{IBC_LATEST}/{_os}-{IBC_LATEST}.zip"
-    rprint(f"This will install: [green]{url}[green]")
+    operatingsys = Prompt.ask("Please confirm your operating system", choices=["mac", "windows", "linux"])
+    operatingsys = valid_os[operatingsys]
+    url = f"https://github.com/IbcAlpha/IBC/releases/download/{IBC_LATEST}/{operatingsys}-{IBC_LATEST}.zip"
+    rprint(f"This will install: [green]{url}[/green] to [green]{dest}[/green]")
+    rprint("[bold red]The destination directory will be added to the .gitignore[/bold red]")
     confirmed = Confirm.ask("Do you wish to continue?")
-    # TODO use wget to fetch download
     if confirmed:
-        rprint("[green]confirmed[green]")
+        ignore_path(dest, dest_is_dir=True)
+        if not os.path.isdir(dest):
+            os.mkdir(dest)
+        download_dest = os.path.join(os.getcwd(), dest)
+        download(
+            urls=[url],
+            dest_dir=download_dest,
+        )
+        filepath = os.path.join(download_dest, f"{operatingsys}-{IBC_LATEST}.zip")
+        unzip(filepath, download_dest)
     if not confirmed:
-        rprint("[red]exiting[red]")
+        rprint("[bold red]Exiting[/bold red]")
     print()
+
+
+@controller.command("setup")
+def setup_ibc():
+    rprint("This will assist with setting up the IBC config")
 
 
 # ---------------
