@@ -18,6 +18,8 @@ from rich.progress import (
     TransferSpeedColumn,
 )
 
+from ibtrader.typing.types import PATHLIKE
+
 progress = Progress(
     TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
     BarColumn(bar_width=None),
@@ -57,13 +59,13 @@ def copy_url(task_id: TaskID, url: str, path: str) -> None:
     progress.console.log(f"Downloaded {path}")
 
 
-def download(urls: Iterable[str], dest_dir: str):
+def download(urls: Iterable[str], destination: PATHLIKE):
     """Download multiple files to the given directory."""
 
     with progress:
         with ThreadPoolExecutor(max_workers=4) as pool:
             for url in urls:
                 filename = url.split("/")[-1]
-                dest_path = os.path.join(dest_dir, filename)
+                dest_path = os.path.join(destination, filename)
                 task_id = progress.add_task("download", filename=filename, start=False)
                 pool.submit(copy_url, task_id, url, dest_path)
