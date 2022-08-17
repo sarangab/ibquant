@@ -12,20 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
 import os
-from typing import Optional
+from importlib import import_module
+from typing import Any, List, Optional, Union
 
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+from ib_insync.objects import AccountValue
 from ibquant.typing.types import PATHLIKE
 from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 
-def install_controller_if_confirmed(confirmed: bool, url: str, destination: PATHLIKE, opsys: str):
-    if confirmed:
+def install_controller_if_confirmed(confirmed: bool, url: str, destination: PATHLIKE, opsys: str) -> None:
 
+    if confirmed:
         ignore_path(destination, dest_is_dir=True)
 
         if not os.path.isdir(destination):
@@ -45,23 +48,36 @@ def install_controller_if_confirmed(confirmed: bool, url: str, destination: PATH
         add_ibconfigs_section(os.path.join(download_destination, "config.ini"))
 
     if not confirmed:
-
         rprint("[bold red]Exiting[/bold red]")
 
 
-def rich_table_from_ibiterable(ibiterable, title: Optional[str] = None, **kwargs):
-    # TITLE
+def rich_table_from_ibiterable(
+    ibiterable: Union[List[str], List[AccountValue]], title: Optional[str] = None, **kwargs: Any
+) -> None:
+
     table = Table(title=title)
-    # COLUMNS
-    if isinstance(ibiterable, list):
-        if hasattr(ibiterable[0], "_fields"):
-            fields = ibiterable[0]._fields
-    for field in fields:
-        table.add_column(field, justify="right", no_wrap=True)
-    # ROWS
-    for record in ibiterable:
-        record = record._asdict()
-        table.add_row(*[record.get(field) for field in fields])
-    # SHOW
+
+    if not isinstance(ibiterable, list):
+        raise TypeError(f"must supply a list, got {type(ibiterable)}")
+
+    if hasattr(ibiterable[0], "_fields"):
+        fields = ibiterable[0]._fields
+        for field in fields:
+            table.add_column(field, justify="right", no_wrap=True)
+        for record in ibiterable:
+            record = record._asdict()
+            table.add_row(*[record.get(field) for field in fields])
+
+    if isinstance(ibiterable[0], str):
+        table.add_column(kwargs["field_title"], justify="right", no_wrap=True)
+        for record in ibiterable:
+            table.add_row(record)
+
     console = Console()
     console.print(table)
+
+
+def signature(modulename, attrname):
+    module = import_module(modulename)
+    moduleclass = getattr(module, attrname)
+    return inspect.signature(moduleclass)

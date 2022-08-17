@@ -5,8 +5,13 @@ import numpy as np
 from bs4 import BeautifulSoup
 
 import ib_insync as ib
-from ibquant.dataclasses.advisor import AdvisorDataTypes
-from ibquant.dataclasses.connect import Socket
+
+
+@dataclass
+class AdvisorDataTypes:
+    groups: int = 1
+    profiles: int = 2
+    account_aliases: int = 3
 
 
 @dataclass
@@ -15,19 +20,11 @@ class Group:
 
 
 class Advisor:
-    @staticmethod
-    def run():
-        app = ib.IB()
-        app.connect(
-            Socket.host,
-            Socket.port[os.environ["PLATFORM"]][os.environ["CONN"]],
-            clientId=np.random.randint(0, 100000),
-        )
-        return app
+    def run(self):
+        ...
 
-    @staticmethod
-    def stop(app):
-        app.disconnect()
+    def stop(self):
+        ...
 
     def group(group_name: str):
         app = Advisor.run()

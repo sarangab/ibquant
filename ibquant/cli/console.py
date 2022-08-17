@@ -12,14 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
 import os
+import sys
+from importlib import import_module
 
 import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
-from ibquant.cli.utilities import install_controller_if_confirmed, rich_table_from_ibiterable
-from ibquant.core.account import get_account_report
+import ib_insync as ib
+from ibquant.cli.utilities import install_controller_if_confirmed, rich_table_from_ibiterable, signature
+from ibquant.core.account import Account
+from ibquant.mixins.connect import ConnectionMixin
+from ibquant.mixins.contract import ContractMixin
 
 IBC_LATEST = "3.14.0"
 os.environ["IBC_LATEST"] = IBC_LATEST
@@ -28,6 +34,14 @@ os.environ["IBC_LATEST"] = IBC_LATEST
 @click.group()
 def main():
     pass
+
+
+@main.command("test")
+@click.option("--option1", prompt=True)
+@click.option("--option2", prompt=True)
+def test(option1, option2):
+    argspec = signature(option1, option2)
+    print(argspec)
 
 
 # ---------------
@@ -43,6 +57,27 @@ def login():
     print()
 
 
+@main.command("connect")
+@click.option(
+    "--platform",
+    default="tws",
+    type=click.Choice(["tws", "gateway"], case_sensitive=True),
+    prompt=True,
+)
+@click.option(
+    "--connection-type",
+    default="live",
+    type=click.Choice(["live", "paper"], case_sensitive=True),
+    prompt=True,
+)
+def ibconnect(platform, connection_type):
+    os.environ["PLATFORM"] = platform
+    os.environ["CONN"] = connection_type
+
+
+# ---------------
+# JVM IB Controller commands
+# ---------------
 @main.group()
 def controller():
     pass
@@ -82,6 +117,25 @@ def get_group(group):
     rprint(f"You entered group name: [green]{group}[green]")
 
 
+@advisor.command("managed-accounts")
+@click.option(
+    "--platform",
+    default="tws",
+    type=click.Choice(["tws", "gateway"], case_sensitive=True),
+    prompt=True,
+)
+@click.option(
+    "--connection-type",
+    default="live",
+    type=click.Choice(["live", "paper"], case_sensitive=True),
+    prompt=True,
+)
+def managed_accounts(platform, connection_type):
+    app = ConnectionMixin(platform, connection_type).app
+    accounts = Account(app).get_managed_account()
+    rich_table_from_ibiterable(accounts, field_title="managed accts")
+
+
 # ---------------
 # account commands
 # ---------------
@@ -91,15 +145,29 @@ def account():
 
 
 @account.command("summary")
-@click.option("--platform", default="tws", type=click.Choice(["tws", "gateway"], case_sensitive=True), prompt=True)
-@click.option("--connection", default="live", type=click.Choice(["live", "paper"], case_sensitive=True), prompt=True)
+@click.option(
+    "--platform",
+    default="tws",
+    type=click.Choice(["tws", "gateway"], case_sensitive=True),
+    prompt=True,
+)
+@click.option(
+    "--connection-type",
+    default="live",
+    type=click.Choice(["live", "paper"], case_sensitive=True),
+    prompt=True,
+)
 @click.option("--account", default="All", prompt=True)
 @click.option(
-    "--report-type", default="summary", type=click.Choice(["summary", "values"], case_sensitive=True), prompt=True
+    "--report-type",
+    default="summary",
+    type=click.Choice(["summary", "values"], case_sensitive=True),
+    prompt=True,
 )
-def account_summary(platform, connection, account, report_type):
+def account_summary(platform, connection_type, account, report_type):
     account = account.upper() if account.upper() != "ALL" else account.title()
-    summary = get_account_report(platform, connection, account, report_type)
+    app = ConnectionMixin(platform, connection_type).app
+    summary = Account(app).get_account_report(account, report_type=report_type)
     rich_table_from_ibiterable(summary)
 
 
@@ -121,6 +189,54 @@ def buying_power():
 @account.command()
 def daily_pnl():
     pass
+
+
+# ---------------
+# contract lookup commands
+# ---------------
+@main.group()
+def contract():
+    pass
+
+
+@contract.command("lookup")
+@click.option(
+    "--platform",
+    default="tws",
+    type=click.Choice(["tws", "gateway"], case_sensitive=True),
+    prompt=True,
+)
+@click.option(
+    "--connection-type",
+    default="live",
+    type=click.Choice(["live", "paper"], case_sensitive=True),
+    prompt=True,
+)
+@click.option(
+    "--contract-type",
+    type=click.Choice(["Stock", "Future", "Commodity", "Index", "Fund"], case_sensitive=True),
+    required=True,
+)
+@click.option("--con-id", required=False)
+def conid_lookup(platform, connection_type, contract_type, con_id):
+    app = ConnectionMixin(platform, connection_type).app
+    contract = ContractMixin(app, contract_type)
+    contract_params = [i for i in list(inspect.signature(contract.contract).parameters) if i not in ["args", "kwargs"]]
+    kwargs = {k: "" for k in contract_params}
+    for param in contract_params:
+        if contract_type == "Future" and param == "lastTradeDateOrContractMonth":
+            msg = "Please enter the expiry month in YYYYMM format"
+        else:
+            msg = f"Please enter the {param}"
+        kwargs[param] = click.prompt(msg, default="", show_default=False)
+    contract_details = contract.details(**kwargs)
+    app.disconnect()
+    if not contract_details:
+        rprint(f"[red]Unknown contract[/red]: {contract.contract(**kwargs)}")
+    if contract_type == "Stock":
+        rprint(f"[green]The conID is {contract_details.contract.conId}[/green]")
+    if contract_type == "Future":
+        rprint(f"[green]The contract is {contract_details.contract}[/green]")
 
 
 # ---------------
