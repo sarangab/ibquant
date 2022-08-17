@@ -16,4 +16,11 @@ from abc import ABC
 
 
 class ProfitAndLoss(ABC):
+    """
+    Note:
+        this should user whatever tools are available in the quantopian
+        reloaded packages. if the concept does not exist there, check out
+        the quantconnect docs, or tradology's tools.
+    """
+
     ...
