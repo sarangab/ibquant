@@ -10,23 +10,27 @@ IB Quant leverages [ib-insync](https://github.com/erdewit/ib_insync) to interfac
 The CLI is named ib; in terminal use `ib --help` to view available commands.
 
 
-## Core Classes
+## Core Classes and Mixin Interfaces
 
-`Advisor` will assist to validate accounts and groups, and query positions
+`core.Advisor` will assist to validate accounts and groups, and query positions
 
-`Trader` drives the user defined strategy in live trading
+`core.Account` is a companion to Advisor
 
-`Brute` enables brute force optimization of rules based trading strategies
+`core.Trader` drives the user defined strategy in live trading
 
-`Learner` is used to optimize gradient based learning strategies
+`core.Brute` enables brute force optimization of rules based trading strategies
 
-`Strategy` provides a base class for user defined strategies
+`core.Learner` is used to optimize gradient based learning strategies
 
-`Factor` provides a base class for the [ibtrader.factors](https://github.com/JustinGoheen/ibtrader/tree/main/ibtrader/factors)
+`core.Strategy` provides a base class for user defined strategies
 
-`Contract` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
+`core.Order` provides interfaces for several TWS [order types](https://interactivebrokers.github.io/tws-api/available_orders.html)
 
-`Order` provides interfaces for several TWS [order types](https://interactivebrokers.github.io/tws-api/available_orders.html)
+`mixins.ConnectionMixin` handles the connection to the running TWS or Gateway sesion
+
+`mixins.ContractMixin` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
+
+
 
 
 ## Installation
