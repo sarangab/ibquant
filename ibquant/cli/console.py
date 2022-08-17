@@ -15,7 +15,6 @@
 import inspect
 import os
 import sys
-from importlib import import_module
 
 import click
 from rich import print as rprint
@@ -232,7 +231,8 @@ def conid_lookup(platform, connection_type, contract_type, con_id):
     contract_details = contract.details(**kwargs)
     app.disconnect()
     if not contract_details:
-        rprint(f"[red]Unknown contract[/red]: {contract.contract(**kwargs)}")
+        rprint("[red]See error logs above[/red]")
+        sys.exit()
     if contract_type == "Stock":
         rprint(f"[green]The conID is {contract_details.contract.conId}[/green]")
     if contract_type == "Future":

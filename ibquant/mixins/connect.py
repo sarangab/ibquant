@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import numpy as np
 from eventkit import Event
@@ -18,6 +19,8 @@ class ConnectionMixin(asyncio.Protocol):
         self.disconnected = Event("disconnected")
         self.platform = platform
         self.connection = connection_type
+        self.logger = logging.getLogger("ib_insync.wrapper")
+        self.logger.setLevel("ERROR")
         self.reset()
 
     @property

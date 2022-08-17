@@ -12,36 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 from typing import Any, Callable, Dict
 
-import numpy as np
-from rich import print as rprint
-
-import ib_insync
-from ib_insync.util import run
-
-warnings.filterwarnings("ignore")
+import ib_insync as ib
 
 
 class Contracts:
-    Contract = {"method": ib_insync.contract.Contract, "sectype": ""}
-    Stock = {"method": ib_insync.contract.Stock, "sectype": "STK"}
-    Option = {"method": ib_insync.contract.Option, "sectype": "OPT"}
-    Future = {"method": ib_insync.contract.Future, "sectype": "FUT"}
-    ContFuture = {"method": ib_insync.contract.ContFuture, "sectype": "CONTFUT"}
-    Forex = {"method": ib_insync.contract.Forex, "sectype": "CASH"}
-    Index = {"method": ib_insync.contract.Index, "sectype": "IND"}
-    CFD = {"method": ib_insync.contract.CFD, "sectype": "CFD"}
-    Bond = {"method": ib_insync.contract.Bond, "sectype": "BOND"}
-    Commodity = {"method": ib_insync.contract.Commodity, "sectype": "CMDTY"}
-    FuturesOption = {"method": ib_insync.contract.FuturesOption, "sectype": "FOP"}
-    MutualFund = {"method": ib_insync.contract.MutualFund, "sectype": "FUND"}
-    Warrant = {"method": ib_insync.contract.Warrant, "sectype": "WAR"}
-    IOPT = {"method": ib_insync.contract.Warrant, "sectype": "IOPT"}
-    Bag = {"method": ib_insync.contract.Bag, "sectype": "BAG"}
-    Crypto = {"method": ib_insync.contract.Crypto, "sectype": "CRYPTO"}
-    News = {"method": ib_insync.contract.Contract, "sectype": "NEWS"}
+    Contract = {"method": ib.contract.Contract, "sectype": ""}
+    Stock = {"method": ib.contract.Stock, "sectype": "STK"}
+    Option = {"method": ib.contract.Option, "sectype": "OPT"}
+    Future = {"method": ib.contract.Future, "sectype": "FUT"}
+    ContFuture = {"method": ib.contract.ContFuture, "sectype": "CONTFUT"}
+    Forex = {"method": ib.contract.Forex, "sectype": "CASH"}
+    Index = {"method": ib.contract.Index, "sectype": "IND"}
+    CFD = {"method": ib.contract.CFD, "sectype": "CFD"}
+    Bond = {"method": ib.contract.Bond, "sectype": "BOND"}
+    Commodity = {"method": ib.contract.Commodity, "sectype": "CMDTY"}
+    FuturesOption = {"method": ib.contract.FuturesOption, "sectype": "FOP"}
+    MutualFund = {"method": ib.contract.MutualFund, "sectype": "FUND"}
+    Warrant = {"method": ib.contract.Warrant, "sectype": "WAR"}
+    IOPT = {"method": ib.contract.Warrant, "sectype": "IOPT"}
+    Bag = {"method": ib.contract.Bag, "sectype": "BAG"}
+    Crypto = {"method": ib.contract.Crypto, "sectype": "CRYPTO"}
+    News = {"method": ib.contract.Contract, "sectype": "NEWS"}
 
 
 class ContractMixin:
@@ -65,7 +58,7 @@ class ContractMixin:
     def qualify_contract(self, **kwargs):
         return self.app.qualifyContracts(self.contract(**kwargs))
 
-    def details(self, *args: Any, **kwargs: Any) -> ib_insync.Contract:
+    def details(self, *args: Any, **kwargs: Any) -> ib.Contract:
         qc = self.qualify_contract(**kwargs)
         if not qc:
             return None
