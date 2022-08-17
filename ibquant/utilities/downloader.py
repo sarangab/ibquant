@@ -1,3 +1,17 @@
+# Copyright Justin R. Goheen.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # borrowed from https://github.com/Textualize/rich/blob/master/examples/downloader.py
 import os.path
 import signal
@@ -18,7 +32,7 @@ from rich.progress import (
     TransferSpeedColumn,
 )
 
-from ibquant.typing.types import PATHLIKE
+from ibquant.types import PATHLIKE
 
 progress = Progress(
     TextColumn("[bold blue]{task.fields[filename]}", justify="right"),

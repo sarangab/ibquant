@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List, Union
 
 import ib_insync as ib
 
@@ -48,14 +48,14 @@ class ContractMixin:
         return getattr(Contracts, self.contract_type)
 
     @property
-    def contract(self) -> None:
+    def contract(self) -> Callable:
         return self.contractdata["method"]
 
     @property
-    def sectype(self) -> None:
+    def sectype(self) -> str:
         return self.contractdata["sectype"]
 
-    def qualify_contract(self, **kwargs):
+    def qualify_contract(self, **kwargs) -> Union[List, List[ib.Contract]]:
         return self.app.qualifyContracts(self.contract(**kwargs))
 
     def details(self, *args: Any, **kwargs: Any) -> ib.Contract:

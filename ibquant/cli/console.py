@@ -35,14 +35,6 @@ def main():
     pass
 
 
-@main.command("test")
-@click.option("--option1", prompt=True)
-@click.option("--option2", prompt=True)
-def test(option1, option2):
-    argspec = signature(option1, option2)
-    print(argspec)
-
-
 # ---------------
 # main commands
 # ---------------
@@ -70,8 +62,7 @@ def login():
     prompt=True,
 )
 def ibconnect(platform, connection_type):
-    os.environ["PLATFORM"] = platform
-    os.environ["CONN"] = connection_type
+    pass
 
 
 # ---------------

@@ -22,7 +22,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ib_insync.objects import AccountValue
-from ibquant.typing.types import PATHLIKE
+from ibquant.types import PATHLIKE
 from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 
