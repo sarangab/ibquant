@@ -20,9 +20,8 @@ import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
-import ib_insync as ib
+from ibquant.cli.commander import Commander
 from ibquant.cli.utilities import install_controller_if_confirmed, rich_table_from_ibiterable
-from ibquant.core.ibapp import ibApp
 
 IBC_LATEST = "3.14.0"
 os.environ["IBC_LATEST"] = IBC_LATEST
@@ -114,7 +113,7 @@ def advisor():
     prompt=True,
 )
 def get_group(group_name, platform, connection_type):
-    app = ibApp(platform, connection_type)
+    app = Commander(platform, connection_type)
     app.connect()
     group = app.get_group_members(group_name)
     app.disconnect()
@@ -135,7 +134,7 @@ def get_group(group_name, platform, connection_type):
     prompt=True,
 )
 def managed_accounts(platform, connection_type):
-    app = ibApp(platform, connection_type)
+    app = Commander(platform, connection_type)
     app.connect()
     accounts = app.get_managed_account()
     app.disconnect()
@@ -172,7 +171,7 @@ def account():
 )
 def account_summary(platform, connection_type, account, report_type):
     account = account.upper() if account.upper() != "ALL" else account.title()
-    app = ibApp(platform, connection_type)
+    app = Commander(platform, connection_type)
     app.connect()
     summary = app.get_account_report(account, report_type=report_type)
     app.disconnect()
@@ -227,7 +226,7 @@ def contract():
 )
 @click.option("--con-id", required=False)
 def conid_lookup(platform, connection_type, contract_type, con_id):
-    app = ibApp(platform=platform, connection_type=connection_type, contract_type=contract_type)
+    app = Commander(platform=platform, connection_type=connection_type, contract_type=contract_type)
     app.connect()
     contract_params = [i for i in list(inspect.signature(app.contract).parameters) if i not in ["args", "kwargs"]]
     kwargs = {k: "" for k in contract_params}
