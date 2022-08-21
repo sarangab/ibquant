@@ -100,9 +100,25 @@ def advisor():
 
 
 @advisor.command("get-group")
-@click.argument("group")
-def get_group(group):
-    rprint(f"You entered group name: [green]{group}[green]")
+@click.argument("group-name")
+@click.option(
+    "--platform",
+    default="tws",
+    type=click.Choice(["tws", "gateway"], case_sensitive=True),
+    prompt=True,
+)
+@click.option(
+    "--connection-type",
+    default="live",
+    type=click.Choice(["live", "paper"], case_sensitive=True),
+    prompt=True,
+)
+def get_group(group_name, platform, connection_type):
+    app = ibApp(platform, connection_type)
+    app.connect()
+    group = app.get_group_members(group_name)
+    app.disconnect()
+    rich_table_from_ibiterable(group, field_title="Group Members")
 
 
 @advisor.command("managed-accounts")
