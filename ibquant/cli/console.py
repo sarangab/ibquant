@@ -23,8 +23,7 @@ from rich.prompt import Confirm, Prompt
 import ib_insync as ib
 from ibquant.cli.utilities import install_controller_if_confirmed, rich_table_from_ibiterable, signature
 from ibquant.core.account import Account
-from ibquant.mixins.connect import ConnectionMixin
-from ibquant.mixins.contract import ContractMixin
+from ibquant.core.ibapp import ibApp
 
 IBC_LATEST = "3.14.0"
 os.environ["IBC_LATEST"] = IBC_LATEST
@@ -121,7 +120,7 @@ def get_group(group):
     prompt=True,
 )
 def managed_accounts(platform, connection_type):
-    app = ConnectionMixin(platform, connection_type).app
+    app = ibApp(platform, connection_type).app
     accounts = Account(app).get_managed_account()
     rich_table_from_ibiterable(accounts, field_title="managed accts")
 
@@ -156,7 +155,7 @@ def account():
 )
 def account_summary(platform, connection_type, account, report_type):
     account = account.upper() if account.upper() != "ALL" else account.title()
-    app = ConnectionMixin(platform, connection_type).app
+    app = ibApp(platform, connection_type).app
     summary = Account(app).get_account_report(account, report_type=report_type)
     rich_table_from_ibiterable(summary)
 
@@ -209,9 +208,9 @@ def contract():
 )
 @click.option("--con-id", required=False)
 def conid_lookup(platform, connection_type, contract_type, con_id):
-    app = ConnectionMixin(platform, connection_type).app
-    contract = ContractMixin(app, contract_type)
-    contract_params = [i for i in list(inspect.signature(contract.contract).parameters) if i not in ["args", "kwargs"]]
+    app = ibApp(platform=platform, connection_type=connection_type, contract_type=contract_type)
+    app.connect()
+    contract_params = [i for i in list(inspect.signature(app.contract).parameters) if i not in ["args", "kwargs"]]
     kwargs = {k: "" for k in contract_params}
     for param in contract_params:
         if contract_type == "Future" and param == "lastTradeDateOrContractMonth":
@@ -219,7 +218,7 @@ def conid_lookup(platform, connection_type, contract_type, con_id):
         else:
             msg = f"Please enter the {param}"
         kwargs[param] = click.prompt(msg, default="", show_default=False)
-    contract_details = contract.details(**kwargs)
+    contract_details = app.details(**kwargs)
     app.disconnect()
     if not contract_details:
         rprint("[red]See error logs above[/red]")
