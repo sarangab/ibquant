@@ -1,10 +1,9 @@
 from typing import Optional
 
-from ibquant.mixins.connect import ConnectionMixin
-from ibquant.mixins.contract import ContractMixin
+from ibquant.mixins import AccountMixin, ConnectionMixin, ContractMixin, GroupMixins
 
 
-class ibApp(ConnectionMixin, ContractMixin):
+class ibApp(AccountMixin, ConnectionMixin, ContractMixin, GroupMixins):
     def __init__(self, platform: str, connection_type: str, contract_type: Optional[str] = None):
         super(ibApp, self).__init__()
         self.platform = platform

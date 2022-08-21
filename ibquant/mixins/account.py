@@ -1,15 +1,6 @@
-import os
-
-import numpy as np
-
-import ib_insync as ib
-from ibquant.mixins.connect import ConnectionMixin
-
-
-class Account:
-    def __init__(self, app, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.app = app
+class AccountMixin:
+    def __init__(self):
+        super().__init__()
 
     def get_account_report(self, account, report_type="summary"):
         reports = dict(values=self.app.accountValues, summary=self.app.accountSummary)

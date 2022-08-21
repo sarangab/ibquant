@@ -21,8 +21,7 @@ from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
 import ib_insync as ib
-from ibquant.cli.utilities import install_controller_if_confirmed, rich_table_from_ibiterable, signature
-from ibquant.core.account import Account
+from ibquant.cli.utilities import install_controller_if_confirmed, rich_table_from_ibiterable
 from ibquant.core.ibapp import ibApp
 
 IBC_LATEST = "3.14.0"
@@ -120,8 +119,10 @@ def get_group(group):
     prompt=True,
 )
 def managed_accounts(platform, connection_type):
-    app = ibApp(platform, connection_type).app
-    accounts = Account(app).get_managed_account()
+    app = ibApp(platform, connection_type)
+    app.connect()
+    accounts = app.get_managed_account()
+    app.disconnect()
     rich_table_from_ibiterable(accounts, field_title="managed accts")
 
 
@@ -155,8 +156,10 @@ def account():
 )
 def account_summary(platform, connection_type, account, report_type):
     account = account.upper() if account.upper() != "ALL" else account.title()
-    app = ibApp(platform, connection_type).app
-    summary = Account(app).get_account_report(account, report_type=report_type)
+    app = ibApp(platform, connection_type)
+    app.connect()
+    summary = app.get_account_report(account, report_type=report_type)
+    app.disconnect()
     rich_table_from_ibiterable(summary)
 
 
