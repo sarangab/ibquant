@@ -38,10 +38,8 @@ class Contracts:
 
 
 class ContractMixin:
-    def __init__(self, app_instance, contract_type: str, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.contract_type = contract_type
-        self.app = app_instance
+    def __init__(self) -> None:
+        super().__init__()
 
     @property
     def contractdata(self) -> Dict[Callable, str]:

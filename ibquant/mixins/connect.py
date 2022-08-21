@@ -24,14 +24,12 @@ import ib_insync as ib
 class ConnectionMixin(asyncio.Protocol):
     """an improvement on ib_insync.connection.Connection"""
 
-    def __init__(self, platform, connection_type):
+    def __init__(self):
         super().__init__()
         self._ib = ib.IB()
         self._cid = np.random.randint(0, 100000)
         self.has_data = Event("hasData")
         self.disconnected = Event("disconnected")
-        self.platform = platform
-        self.connection = connection_type
         self.logger = logging.getLogger("ib_insync.wrapper")
         self.logger.setLevel("ERROR")
         self.reset()
@@ -52,8 +50,8 @@ class ConnectionMixin(asyncio.Protocol):
     def clientid(self):
         return self._cid
 
-    def _connect(self):
-        self._ib.connect(
+    def connect(self):
+        self.app.connect(
             self.host,
             self.port,
             clientId=self.clientid,
@@ -61,7 +59,6 @@ class ConnectionMixin(asyncio.Protocol):
 
     @property
     def app(self):
-        self._connect()
         return self._ib
 
     def reset(self):
