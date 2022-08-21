@@ -5,6 +5,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 
 import ib_insync as ib
+from ibquant.mixins import ConnectionMixin, ContractMixin, GroupMixins
 
 
 @dataclass
@@ -19,14 +20,17 @@ class Group:
     members: tuple = ()
 
 
-class Advisor:
+class Advisor(ContractMixin, ConnectionMixin, GroupMixins):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def run(self):
         ...
 
     def stop(self):
         ...
 
-    def group(group_name: str):
+    def groups(group_name: str):
         app = Advisor.run()
         data_type = AdvisorDataTypes.groups
 
@@ -43,6 +47,9 @@ class Advisor:
         Advisor.stop(app)
 
         return group.members
+
+    def tradeable_group(self):
+        ...
 
     def profiles(profiles):
         ...

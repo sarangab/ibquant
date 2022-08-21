@@ -102,7 +102,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 line-length = 120
 
-[flake8]
+[tool.flake8]
 max-line-length = 120
 
 [tool.isort]

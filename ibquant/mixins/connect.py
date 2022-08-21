@@ -19,7 +19,6 @@ import numpy as np
 from eventkit import Event
 
 import ib_insync as ib
-from ib_insync import connection
 
 
 class ConnectionMixin(asyncio.Protocol):
@@ -27,7 +26,7 @@ class ConnectionMixin(asyncio.Protocol):
 
     def __init__(self, platform, connection_type):
         super().__init__()
-        self._app = ib.IB()
+        self._ib = ib.IB()
         self._cid = np.random.randint(0, 100000)
         self.has_data = Event("hasData")
         self.disconnected = Event("disconnected")
@@ -54,7 +53,7 @@ class ConnectionMixin(asyncio.Protocol):
         return self._cid
 
     def _connect(self):
-        self._app.connect(
+        self._ib.connect(
             self.host,
             self.port,
             clientId=self.clientid,
@@ -63,7 +62,7 @@ class ConnectionMixin(asyncio.Protocol):
     @property
     def app(self):
         self._connect()
-        return self._app
+        return self._ib
 
     def reset(self):
         self.transport = None
@@ -102,3 +101,18 @@ class ConnectionMixin(asyncio.Protocol):
 
     def data_received(self, data):
         self.has_data.emit(data)
+
+    def controller(self, userid, password, ib_major_version: str, ibc_path: str, ibc_ini: str):
+
+        ibc = ib.ibcontroller.IBC(
+            ib_major_version,
+            gateway=False,
+            tradingMode="live",
+            userid=userid,
+            password=password,
+            ibcPath=ibc_path,
+            ibcIni=ibc_ini,
+        )
+
+        ibc.start()
+        self._ib.run()
