@@ -1,4 +1,7 @@
-class AccountMixin:
+from abc import ABC
+
+
+class AccountMixin(ABC):
     def __init__(self):
         super().__init__()
 

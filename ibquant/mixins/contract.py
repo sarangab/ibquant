@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from abc import ABC
 from typing import Any, Callable, Dict, List, Union
 
 import ib_insync as ib
@@ -37,7 +38,7 @@ class Contracts:
     News = {"method": ib.contract.Contract, "sectype": "NEWS"}
 
 
-class ContractMixin:
+class ContractMixin(ABC):
     def __init__(self) -> None:
         super().__init__()
 
