@@ -1,21 +1,35 @@
+# Copyright Justin R. Goheen.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import ib_insync as ib
 
 
 class MarketContracts:
 
-    EquityMinis = dict(
+    EquityFutureMinis = dict(
         SNP500=ib.Future("ES", exchange="GLOBEX"),
         RUSSELL=ib.Future("RTY", exchange="GLOBEX"),
         N100=ib.Future("NQ", exchange="GLOBEX"),
     )
 
-    EquityMicros = dict(
+    EquityFutureMicros = dict(
         SNP500=ib.Future("MES", exchange="GLOBEX"),
         RUSSELL=ib.Future("M2K", exchange="GLOBEX"),
         N100=ib.Future("MNQ", exchange="GLOBEX"),
     )
 
-    EquityMicrosIndex = dict(
+    EquityFutureMicrosIndex = dict(
         SNP500=ib.Index("MES", exchange="GLOBEX"),
         RUSSELL=ib.Future("M2K", exchange="GLOBEX"),
         N100=ib.Future("MNQ", exchange="GLOBEX"),
@@ -29,7 +43,7 @@ class MarketContracts:
         VIX9D=ib.Index("VIX9D", exchange="CBOE"),
     )
 
-    IndexVol = dict(
+    IndexVolatility = dict(
         SNP500=ib.Index("VIX", exchange="CBOE"),
         N100=ib.Index("VXN", exchange="CBOE"),
         RUSSELL=ib.Index("RVX", exchange="CBOE"),
