@@ -81,25 +81,3 @@ Indicator definitions can be found at:
 Sample strategies can be found via the link below.
 
 - thinkorswim [Strategies Library](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/strategies)
-
-
-## Documentation
-
-Docs will be built with mkdocstrings and material-for-mkdocs. Docs will be able to be served locally, but will not be hosted on a static site host.
-
-To generate and serve the docs, do:
-
-```sh
-cd {{ path to clone }}
-mkdocs serve
-```
-
-## User Interfaces
-
-Plotly Dash can be used to create low code interfaces with the framework. The basic short-term plan is to use the command line interface as a POC/MVP for the Dash apps, so that functionality is provided and not bottlenecked by Dash.
-
-A text user interface can also be built with textualize's `textual`. Textual may be more appropriate for applications that do not require visualizations.
-
-If a higher speed, desktop visual interface is required, DearPyGUI may be more appropriate. Example use cases might be increased frequency trading associated with visualizing a limit order book on each tick event.
-
-All 3 of the above options can be ran locally without deploying to a cloud instance.
