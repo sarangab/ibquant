@@ -20,6 +20,7 @@ from plotly.subplots import make_subplots
 
 class MarketDepthVisualizations:
     def plot_spread(data, index_location=1):
+        """plots bids on right and asks on left to visualize mid price as spread"""
 
         prices = [i for i in data.columns if "price" in i]
         sizes = [i for i in data.columns if "size" in i]
@@ -60,10 +61,8 @@ class MarketDepthVisualizations:
 
     def plot_levels(data, levels=10):
         """
-        levels:
-        max number is 10 to plot because of colors
-        timestamps:
-        max number is 200000 in colab because of comp issues
+        plots a cmap-like timeseries plot to visualize dominate bid and asks across time
+        levels: max number is 10
         """
         fig = go.Figure()
         for i in range(1, levels + 1):
@@ -88,6 +87,7 @@ class MarketDepthVisualizations:
         fig.show()
 
     def plot_heatmap(data, levels=5):
+        """overlays a mid-price plot onto a heatmap of dominate bids and asks"""
 
         prices = [i for i in data.columns if "price" in i]
         all_sizes = [i for i in data.columns if "size" in i]
