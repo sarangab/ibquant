@@ -22,12 +22,12 @@ from rich.console import Console
 from rich.table import Table
 
 from ib_insync.objects import AccountValue
-from ibquant.core.base import IbBase
+from ibquant.core.base import QuantBase
 from ibquant.types import PATHLIKE
 from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 
-class Commander(IbBase):
+class Commander(QuantBase):
     def __init__(self, *args: Any, **kwargs: Any):
         super(Commander, self).__init__(*args, **kwargs)
 
