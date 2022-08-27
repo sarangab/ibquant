@@ -144,5 +144,6 @@ outputs/
 # added by ibtrader
 ibc/
 
-# demo notebooks
+# demos
 demo_notebooks/
+sandbox/
