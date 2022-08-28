@@ -15,10 +15,10 @@
 
 from typing import Optional
 
-from ibquant.mixins import AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin
+from ibquant.mixins import AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin
 
 
-class QuantBase(AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin):
+class QuantBase(AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin):
     def __init__(self, platform: str, connection_type: str, contract_type: Optional[str] = None):
         super().__init__()
         self.platform = platform

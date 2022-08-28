@@ -230,7 +230,7 @@ def conid_lookup(platform, connection_type, contract_type, con_id):
     contract_params = [i for i in list(inspect.signature(app.contract).parameters) if i not in ["args", "kwargs"]]
     kwargs = {k: "" for k in contract_params}
     for param in contract_params:
-        if contract_type == "Future" and param == "lastTradeDateOrContractMonth":
+        if param == "lastTradeDateOrContractMonth":
             msg = "Please enter the expiry month in YYYYMM format"
         else:
             msg = f"Please enter the {param}"
@@ -272,14 +272,14 @@ def plot(market, indicators):
 
 
 # ---------------
-# backtest commands
+# data commands
 # ---------------
 @main.group()
-def backtest():
+def data():
     pass
 
 
-@backtest.command("fetch-data")
+@data.command("fetch-data")
 @click.argument("contract")
 @click.argument("end-date")
 @click.argument("duration")
@@ -292,7 +292,15 @@ def fetch_data():
     pass
 
 
-@backtest.command("run")
+# ---------------
+# data commands
+# ---------------
+@main.group()
+def researcher():
+    pass
+
+
+@researcher.command("run")
 @click.argument("max-drawdown")
 @click.argument("long-short")
 @click.argument("execution-window")
@@ -323,8 +331,4 @@ def run_backtest(maxdd, long_short, execution_window):
 
 # ---------------
 # quandl commands
-# ---------------
-
-# ---------------
-# iex commands
 # ---------------

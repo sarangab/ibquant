@@ -12,17 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
-
-from ibquant.hooks.trader import TraderHooks
-from ibquant.loggers.simple import SimpleLogger
-from ibquant.mixins import ConnectionMixin
+from ibquant.core.base import QuantBase
 
 
-class Trader(TraderHooks, ConnectionMixin):
-    def __init__(self, logger: Optional["SimpleLogger"]):
+class Trader(QuantBase):
+    def __init__(self):
         super().__init__()
-        self.logger = logger
-
-    def trade(self, strategy, market):
-        ...

@@ -13,10 +13,10 @@
 # limitations under the License.
 
 
-from ibquant.hooks.brute import BruteHooks
+from ibquant.core.base import QuantBase
 
 
-class Brute(BruteHooks):
+class Brute(QuantBase):
     """a base class for brute force optimization of rules based trading strategies"""
 
     def __init__(self):
