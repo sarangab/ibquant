@@ -20,7 +20,7 @@ import click
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
 
-from ibquant.cli.commander import Commander
+from ibquant.cli.commands import CLI as cli
 
 IBC_LATEST = "3.14.0"
 os.environ["IBC_LATEST"] = IBC_LATEST
@@ -80,7 +80,7 @@ def get_ibc(dest):
     rprint(f"This will install: [green]{url}[/green] to [green]{os.path.join(os.getcwd(), dest)}[/green]")
     rprint("[bold red]The destination directory will be added to the .gitignore[/bold red]")
     confirmed = Confirm.ask("Do you wish to continue?")
-    Commander.install_controller_if_confirmed(confirmed, url, dest, opsys)
+    cli.install_controller_if_confirmed(confirmed, url, dest, opsys)
     print()
 
 
@@ -112,11 +112,11 @@ def advisor():
     prompt=True,
 )
 def get_group(group_name, platform, connection_type):
-    app = Commander(platform, connection_type)
+    app = cli(platform, connection_type)
     app.connect()
     group = app.get_group_members(group_name)
     app.disconnect()
-    Commander.rich_table_from_ibiterable(group, field_title="Group Members")
+    cli.rich_table_from_ibiterable(group, field_title="Group Members")
 
 
 @advisor.command("managed-accounts")
@@ -133,11 +133,11 @@ def get_group(group_name, platform, connection_type):
     prompt=True,
 )
 def managed_accounts(platform, connection_type):
-    app = Commander(platform, connection_type)
+    app = cli(platform, connection_type)
     app.connect()
     accounts = app.get_managed_account()
     app.disconnect()
-    Commander.rich_table_from_ibiterable(accounts, field_title="managed accts")
+    cli.rich_table_from_ibiterable(accounts, field_title="managed accts")
 
 
 # ---------------
@@ -170,11 +170,11 @@ def account():
 )
 def account_summary(platform, connection_type, account, report_type):
     account = account.upper() if account.upper() != "ALL" else account.title()
-    app = Commander(platform, connection_type)
+    app = cli(platform, connection_type)
     app.connect()
     summary = app.get_account_report(account, report_type=report_type)
     app.disconnect()
-    Commander.rich_table_from_ibiterable(summary)
+    cli.rich_table_from_ibiterable(summary)
 
 
 @account.command()
@@ -225,7 +225,7 @@ def contract():
 )
 @click.option("--con-id", required=False)
 def conid_lookup(platform, connection_type, contract_type, con_id):
-    app = Commander(platform=platform, connection_type=connection_type, contract_type=contract_type)
+    app = cli(platform=platform, connection_type=connection_type, contract_type=contract_type)
     app.connect()
     contract_params = [i for i in list(inspect.signature(app.contract).parameters) if i not in ["args", "kwargs"]]
     kwargs = {k: "" for k in contract_params}

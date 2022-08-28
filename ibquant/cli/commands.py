@@ -27,9 +27,9 @@ from ibquant.types import PATHLIKE
 from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 
-class Commander(QuantBase):
+class CLI(QuantBase):
     def __init__(self, *args: Any, **kwargs: Any):
-        super(Commander, self).__init__(*args, **kwargs)
+        super(CLI, self).__init__(*args, **kwargs)
 
     @staticmethod
     def install_controller_if_confirmed(confirmed: bool, url: str, destination: PATHLIKE, opsys: str) -> None:
