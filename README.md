@@ -89,6 +89,26 @@ source .venv/bin/activate
 pip install -e .
 ```
 
+## Usage
+
+After installing ibquant, log into a TWS paper account and test example flows from terminal with:
+
+```sh
+ib advisor managed-accounts
+```
+
+```sh
+ib account summary
+```
+
+```sh
+ib contract lookup --contract-type=Future
+```
+
+Each of the above commands will prompt the user for required inputs.
+
+> localSymbol, multiplier, and currency prompts of  `ib contract lookup` are not required
+
 ## Ecosystem
 
 Aside from using ib-insync, ibtrader also provides users with:
