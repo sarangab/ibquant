@@ -1,0 +1,8 @@
+include *.cff
+exclude *.toml
+exclude requirements.txt
+exclude __pycache__
+exclude *.circleci
+exclude *.devcontainer
+exclude *.github
+exclude *demo_notebooks
