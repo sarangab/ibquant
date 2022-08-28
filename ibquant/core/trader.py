@@ -15,14 +15,14 @@
 from typing import Optional
 
 from ibquant.hooks.trader import TraderHooks
-from ibquant.loggers.returns import ReturnsLogger
-from ibquant.mixins.connect import ConnectionMixin
+from ibquant.loggers.simple import SimpleLogger
+from ibquant.mixins import ConnectionMixin
 
 
 class Trader(TraderHooks, ConnectionMixin):
-    def __init__(self, logger: Optional["ReturnsLogger"]):
+    def __init__(self, logger: Optional["SimpleLogger"]):
         super().__init__()
         self.logger = logger
 
-    def trade(self, study, market):
+    def trade(self, strategy, market):
         ...

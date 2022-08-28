@@ -1,3 +1,18 @@
+# Copyright Justin R. Goheen.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import plotly.graph_objects as go
 from plotly.colors import diverging
 from plotly.subplots import make_subplots
@@ -5,6 +20,7 @@ from plotly.subplots import make_subplots
 
 class MarketDepthVisualizations:
     def plot_spread(data, index_location=1):
+        """plots bids on right and asks on left to visualize mid price as spread"""
 
         prices = [i for i in data.columns if "price" in i]
         sizes = [i for i in data.columns if "size" in i]
@@ -45,10 +61,8 @@ class MarketDepthVisualizations:
 
     def plot_levels(data, levels=10):
         """
-        levels:
-        max number is 10 to plot because of colors
-        timestamps:
-        max number is 200000 in colab because of comp issues
+        plots a cmap-like timeseries plot to visualize dominate bid and asks across time
+        levels: max number is 10
         """
         fig = go.Figure()
         for i in range(1, levels + 1):
@@ -73,6 +87,7 @@ class MarketDepthVisualizations:
         fig.show()
 
     def plot_heatmap(data, levels=5):
+        """overlays a mid-price plot onto a heatmap of dominate bids and asks"""
 
         prices = [i for i in data.columns if "price" in i]
         all_sizes = [i for i in data.columns if "size" in i]

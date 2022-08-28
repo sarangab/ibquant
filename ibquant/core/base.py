@@ -12,8 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC
+
+from typing import Optional
+
+from ibquant.mixins import AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin
 
 
-class BruteHooks(ABC):
-    """a base class for brute force optimization of rules based trading strategies"""
+class QuantBase(AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin):
+    def __init__(self, platform: str, connection_type: str, contract_type: Optional[str] = None):
+        super().__init__()
+        self.platform = platform
+        self.connection = connection_type
+        self.contract_type = contract_type
