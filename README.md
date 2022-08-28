@@ -21,13 +21,18 @@ A command line interface and Python framework for the Interactive Brokers APIs.
 
 IB Quant leverages [ib-insync](https://github.com/erdewit/ib_insync) to interface with Interactive Brokers TWS or Gateway.
 
-The CLI is named ib; in terminal use `ib --help` to view available commands.
+The CLI is named `ib`.
 
+After installing ibquant, ib's command groups can be shown in terminal with:
+
+```sh
+`ib --help`
+```
 
 ## Core Classes and Mixin Interfaces
 
 
-`core.Trader` drives the user defined strategy in live trading
+`core.Trader` drives a user defined strategy in live trading
 
 `core.Brute` enables brute force optimization of rules based trading strategies
 
@@ -45,30 +50,44 @@ The CLI is named ib; in terminal use `ib --help` to view available commands.
 
 `mixins.ContractMixin` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
 
+`mixins.Data` provides utilities for fetching historical data, and for streaming top of book or limit order book data.
 
 
 
 ## Installation
 
+The package can be installed for standard use or for development.
+
+Required dependencies for standard use as a package are shown in [setup.cfg](setup.cfg) under `install_requires` of the `options` group.
+
+Dev dependencies are shown in [setup.cfg](setup.cfg) under the `options.extras_require` group.
+
+### Installing the package for standard use
 After cloning the repo, the framework can be installed for use as intended with:
 
 ```sh
-pip install {{ path to clone }}
+# assuming conda
+conda env create -n ibquant -y
+conda activate ibquant
+pip install {{ path to ibquant clone }}
 ```
 
-Doing so will install IB Quant and all dependencies.
 
-Poetry is being used to build the distro and provide a template venv. As of 16 August 2022, there is a known issue on M series macs with installing h5py and tables while installing IB Quant. If encountered on windows, try resolving with:
+### Installing the package for development
+After cloning the repo, the framework can be installed for development with:
 
 ```sh
-poetry shell
-pip install h5py
-pip install tables
-poetry update
-poetry install
+# creating a virtual environment
+cd {{ path to ibquant clone }}
+python3 -m venv .venv/
+# Activate the environment
+# Linux and MacOS
+source .venv/bin/activate
+# Windows
+.venv\Scripts\activate.bat
+# install an editable version of the package
+pip install -e .
 ```
-
-> to [install poetry](https://python-poetry.org/docs/#installing-with-pipx), first get [pipx](https://pypa.github.io/pipx/) then run `pipx install poetry`
 
 ## Ecosystem
 
