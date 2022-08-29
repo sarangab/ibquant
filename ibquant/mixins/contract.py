@@ -47,19 +47,28 @@ class ContractMixin(ABC):
         return getattr(Contracts, self.contract_type)
 
     @property
-    def contract(self) -> Callable:
+    def contract_method(self) -> Callable:
         return self.contractdata["method"]
+
+    @property
+    def contract_type(self):
+        """used for sandbox traders"""
+        return self._contract_type
+
+    @contract_type.setter
+    def contract_type(self, contract_type: str):
+        self._contract_type = contract_type
 
     @property
     def sectype(self) -> str:
         return self.contractdata["sectype"]
 
     def qualify_contract(self, **kwargs) -> Union[List, List[ib.Contract]]:
-        return self.app.qualifyContracts(self.contract(**kwargs))
+        return self.app.qualifyContracts(self.contract_method(**kwargs))
 
-    def details(self, *args: Any, **kwargs: Any) -> ib.Contract:
+    def contract_details(self, *args: Any, **kwargs: Any) -> ib.Contract:
         qc = self.qualify_contract(**kwargs)
         if not qc:
             return None
-        _details = self.app.reqContractDetails(self.contract(**kwargs))
+        _details = self.app.reqContractDetails(self.contract_method(**kwargs))
         return _details[0]

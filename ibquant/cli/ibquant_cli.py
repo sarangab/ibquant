@@ -227,7 +227,9 @@ def contract():
 def conid_lookup(platform, connection_type, contract_type, con_id):
     app = cli(platform=platform, connection_type=connection_type, contract_type=contract_type)
     app.connect()
-    contract_params = [i for i in list(inspect.signature(app.contract).parameters) if i not in ["args", "kwargs"]]
+    contract_params = [
+        i for i in list(inspect.signature(app.contract_method).parameters) if i not in ["args", "kwargs"]
+    ]
     kwargs = {k: "" for k in contract_params}
     for param in contract_params:
         if param == "lastTradeDateOrContractMonth":
@@ -235,7 +237,7 @@ def conid_lookup(platform, connection_type, contract_type, con_id):
         else:
             msg = f"Please enter the {param}"
         kwargs[param] = click.prompt(msg, default="", show_default=False)
-    contract_details = app.details(**kwargs)
+    contract_details = app.contract_details(**kwargs)
     app.disconnect()
     if not contract_details:
         rprint("[red]See error logs above[/red]")

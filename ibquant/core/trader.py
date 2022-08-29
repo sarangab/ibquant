@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ibquant.core.base import QuantBase
+from ibquant.core.base import AppBase
 
 
-class Trader(QuantBase):
+class Trader(AppBase):
     def __init__(self):
         super().__init__()
