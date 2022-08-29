@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-This module is in-work and is meant to help determine mix-ins, hooks, and callbacks
-that must be added to support an async trading agent.
-"""
 
 import asyncio
 import csv
