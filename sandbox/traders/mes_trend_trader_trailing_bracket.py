@@ -23,6 +23,7 @@ import datetime
 import math
 import os
 import sys
+from typing import Optional
 
 import numpy as np
 import pytz
@@ -32,18 +33,15 @@ import ib_insync as ib
 from ibquant.core.base import AppBase
 from ibquant.futures import EquityFutureFrontMonth
 
-DEBUGGING = os.getenv("DEBUGGING")
-
 # TODO create click argument with options
 ORDERSIZE = 1
 CONTRACTKEY = "SNP500"
-SYMBOL = "MES"
 EXECUTION_OFFSET = dict(MES=dict(profittaker=1, stoploss=2))
 # one minute in 5 second bars
 ONEMINUTE = 12
-# minutes desired * 12; where 12 bars represenets 1 minute (12 * 5 sec bars)
-FAST = 20 * ONEMINUTE
-SLOW = 50 * ONEMINUTE
+# minutes desired
+FAST = 9
+SLOW = 21
 
 
 def spx_nearest_tick(x):
@@ -63,7 +61,7 @@ def make_csvs():
             writer.writerow(column_titles[title])
 
 
-def trailing_stop_trigger(execution_price, action):
+def trailing_stop_trigger(execution_price, action, symbol):
     """sets a trigger price for a trailing stop
 
     Note:
@@ -72,10 +70,10 @@ def trailing_stop_trigger(execution_price, action):
 
     # a trailing stop for an executed short position
     if action == "BUY":
-        trigger_price = execution_price - EXECUTION_OFFSET[SYMBOL]["profittaker"]
+        trigger_price = execution_price - EXECUTION_OFFSET[symbol]["profittaker"]
     # else a trailing stop for an executed long
     else:
-        trigger_price = execution_price + EXECUTION_OFFSET[SYMBOL]["profittaker"]
+        trigger_price = execution_price + EXECUTION_OFFSET[symbol]["profittaker"]
 
     return trigger_price
 
@@ -95,18 +93,27 @@ class IntradayTrendTrader(AppBase):
         turnover.
     """
 
-    def __init__(self, platform="", connection_type="", account=""):
-        super().__init__(platform=platform, connection_type=connection_type)
-        self.account = account
+    def __init__(
+        self,
+        platform,
+        connection_type,
+        account,
+        contract_type,
+        symbol: str,
+        exchange: str,
+        expiry: Optional[str] = EquityFutureFrontMonth.CODE,
+    ):
+        super().__init__(
+            platform=platform, connection_type=connection_type, account=account, contract_type=contract_type
+        )
 
-        # self.app is set in connection mixin
+        # self.app is set in AppBase
         self.app.TimezoneTWS = pytz.timezone("US/Eastern")
 
-        self.contract_type = "Future"
         self.contract = self.contract_method()
-        self.contract.symbol = "MES"
-        self.contract.exchange = "Globex"
-        self.contract.lastTradeDateOrContractMonth = EquityFutureFrontMonth.CODE
+        self.contract.symbol = symbol.upper()
+        self.contract.exchange = exchange.title()
+        self.contract.lastTradeDateOrContractMonth = expiry
 
         rprint("\n" + f"[bold green][FETCHING HISTORY][/bold green] {datetime.datetime.now()}")
 
@@ -119,8 +126,7 @@ class IntradayTrendTrader(AppBase):
         )
 
         self.history = self.to_dataframe(self.history)
-        self.close_history = [spx_nearest_tick(price) for price in self.history["close"]]
-        self.history.to_csv("historical_bars.csv")
+        self.close_history = self.history["close"].to_list()
 
     async def run(self):
 
@@ -146,17 +152,9 @@ class IntradayTrendTrader(AppBase):
 
             async for update_event in marketbars.updateEvent:
 
-                marketposition = [i for i in self.app.positions(self.account) if i.contract.symbol == SYMBOL]
-
-                marketposition = marketposition[0].position if marketposition else 0
-
-                no_position = marketposition == 0
-
                 # append new minute bars
                 if len(marketbars) % ONEMINUTE == 0:
-                    new_bars = marketbars[-ONEMINUTE:]
-                    new_bars_mean = spx_nearest_tick(np.mean([bar.wap for bar in new_bars]))
-                    self.close_history.append(new_bars_mean)
+                    self.close_history.append(np.mean([bar.wap for bar in marketbars[-ONEMINUTE:]]))
 
                 # fast and slow signals
                 fast = spx_nearest_tick(np.mean(self.close_history[-FAST:]))
@@ -165,9 +163,15 @@ class IntradayTrendTrader(AppBase):
                 # set trend direction
                 trend_direction = 1 if fast >= slow else -1
 
+                position = [i for i in self.app.positions(self.account) if i.contract.symbol == self.contract.symbol]
+
+                position = position[0].position if position else 0
+
+                no_position = position == 0
+
                 # check if position should be reversed
-                if marketposition != 0:
-                    reverse = marketposition != trend_direction
+                if position != 0:
+                    reverse = position != trend_direction
                 else:
                     reverse = False
 
@@ -178,25 +182,25 @@ class IntradayTrendTrader(AppBase):
                     f'LAST: {"{:.2f}".format(marketbars[-1].close)}',
                     f'FAST: {"{:.2f}".format(fast)}',
                     f'SLOW: {"{:.2f}".format(slow)}',
-                    f"POS: {marketposition}",
+                    f"POS: {position}",
                     f"TREND: {trend_direction}",
                 )
 
                 # cancel stale entry
-                if hasattr(self, "trade") and marketposition == 0:
+                if hasattr(self, "parent") and position == 0:
                     timedelta = (datetime.datetime.now() - self.timeoftrade).total_seconds()
                     if timedelta >= 30:
-                        if self.trade.isActive():
+                        if self.parent.isActive():
                             rprint(
-                                f"[bold green][CANCELLING TRADE {self.trade.order.orderId}][/bold green]",
+                                f"[bold green][CANCELLING TRADE {self.parent.order.orderId}][/bold green]",
                                 f"{datetime.datetime.now()}",
                             )
                             orders = [o.orderId for o in self.app.openOrders()]
-                            if self.trade.order.orderId in orders:
-                                self.app.cancelOrder(self.trade.order)
+                            if self.parent.order.orderId in orders:
+                                self.app.cancelOrder(self.parent.order)
 
                 # new entry if flat at start of trading
-                if no_position and not hasattr(self, "trade"):
+                if no_position and not hasattr(self, "parent"):
                     rprint(f"[bold green][OPENING][/bold green] {datetime.datetime.now()}")
                     orderside = "BUY" if trend_direction == 1 else "SELL"
                     quantity = ORDERSIZE
@@ -204,14 +208,14 @@ class IntradayTrendTrader(AppBase):
 
                     # TRADE BLOCK
                     takeprofitprice = (
-                        orderprice + EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                        orderprice + EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                         if orderside == "BUY"
-                        else orderprice - EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                        else orderprice - EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                     )
                     stoplossprice = (
-                        orderprice - EXECUTION_OFFSET[SYMBOL]["stoploss"]
+                        orderprice - EXECUTION_OFFSET[self.contract.symbol]["stoploss"]
                         if orderside == "BUY"
-                        else orderprice + EXECUTION_OFFSET[SYMBOL]["stoploss"]
+                        else orderprice + EXECUTION_OFFSET[self.contract.symbol]["stoploss"]
                     )
                     self.bracket = self.app.bracketOrder(
                         action=orderside,
@@ -231,100 +235,83 @@ class IntradayTrendTrader(AppBase):
                     self.bracket.takeProfit.orderType = "TRAIL LIMIT"
                     self.bracket.takeProfit.totalQuantity = ORDERSIZE
                     self.bracket.takeProfit.trailStopPrice = takeprofitprice
-                    self.bracket.takeProfit.auxPrice = EXECUTION_OFFSET[SYMBOL]["profittaker"]
-                    self.bracket.takeProfit.lmtPriceOffset = EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                    self.bracket.takeProfit.auxPrice = EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
+                    self.bracket.takeProfit.lmtPriceOffset = EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                     self.bracket.takeProfit.lmtPrice = None
 
-                    self.trade = self.app.placeOrder(self.contract, self.bracket.parent)
+                    self.parent = self.app.placeOrder(self.contract, self.bracket.parent)
                     self.profittaker = self.app.placeOrder(self.contract, self.bracket.takeProfit)
                     self.stoploss = self.app.placeOrder(self.contract, self.bracket.stopLoss)
                     # END TRADE BLOCK
 
                     rprint(
                         "[green][OPENING TRADE][/green]",
-                        f"ID: {self.trade.order.orderId}",
-                        f"ACTION: {self.trade.order.action}",
-                        f"QTY: {self.trade.order.totalQuantity}",
-                        f"LMT: {self.trade.order.lmtPrice}",
+                        f"ID: {self.parent.order.orderId}",
+                        f"ACTION: {self.parent.order.action}",
+                        f"QTY: {self.parent.order.totalQuantity}",
+                        f"LMT: {self.parent.order.lmtPrice}",
                     )
 
                     self.timeoftrade = datetime.datetime.now()
 
                 # subsequent trades
-                if hasattr(self, "trade"):
+                if hasattr(self, "parent"):
 
-                    open_order_is_reversal = self.trade.order.totalQuantity == ORDERSIZE * 2
-                    open_orders = any(i.isActive() for i in [self.trade, self.profittaker, self.stoploss])
-                    flanks_cancelled = self.profittaker.isDone() or self.stoploss.isDone()
+                    open_order_is_reversal = self.parent.order.totalQuantity == ORDERSIZE * 2
+                    open_orders = any(i.isActive() for i in [self.parent, self.profittaker, self.stoploss])
+                    flank_cancelled = any(
+                        trade.orderStatus.status == "Inactive" for trade in [self.profittaker, self.stoploss]
+                    )
+                    flank_filled = any(
+                        trade.orderStatus.status == "Filled" for trade in [self.profittaker, self.stoploss]
+                    )
 
-                    if self.trade.isActive():
+                    if self.parent.isActive():
                         open_orders = True
                     elif (
                         any(i.isActive() for i in [self.profittaker, self.stoploss])
-                        and self.trade.orderStatus.status == "Filled"
+                        and self.parent.orderStatus.status == "Filled"
                     ):
                         open_orders = True
 
-                    if DEBUGGING:
-                        rprint(f"position {marketposition}")
-                        rprint("flanks canx", flanks_cancelled)
-                        rprint("pt status", self.profittaker.orderStatus.status)
-                        rprint("stop status", self.stoploss.orderStatus.status)
-                        rprint("no position", no_position)
-                        rprint("reverse", reverse)
-                        rprint("trade active", self.trade.isActive())
-                        rprint(f"reentry {no_position and not reverse and not open_orders}")
+                    rprint(f"position {position}")
+                    rprint("flanks canx", flank_cancelled)
+                    rprint("pt status", self.profittaker.orderStatus.status)
+                    rprint("stop status", self.stoploss.orderStatus.status)
+                    rprint("no position", no_position)
+                    rprint("reverse", reverse)
+                    rprint("trade active", self.parent.isActive())
+                    rprint(f"reentry {no_position and not reverse and not open_orders}")
 
                     # open flanking orders if were cancelled by bug
-                    if hasattr(self, "bracket") and not no_position and flanks_cancelled:
+                    if hasattr(self, "bracket") and not no_position and flank_cancelled:
                         rprint(f"[bold green][RE-FLANKING TRADE][/bold green] {datetime.datetime.now()}")
 
-                        # TRADE BLOCK
-                        takeprofitprice = (
-                            orderprice + EXECUTION_OFFSET[SYMBOL]["profittaker"]
-                            if orderside == "BUY"
-                            else orderprice - EXECUTION_OFFSET[SYMBOL]["profittaker"]
-                        )
-                        stoplossprice = (
-                            orderprice - EXECUTION_OFFSET[SYMBOL]["stoploss"]
-                            if orderside == "BUY"
-                            else orderprice + EXECUTION_OFFSET[SYMBOL]["stoploss"]
-                        )
-                        self._bracket = self.app.bracketOrder(
-                            action=self.trade.order.action,
-                            quantity=self.trade.order.totalQuantity,
-                            limitPrice=self.trade.order.lmtPrice,
-                            takeProfitPrice=takeprofitprice,
-                            stopLossPrice=stoplossprice,
-                            account=self.account,
-                        )
+                        # DO NOT CREATE A NEW BRACKET ORDER
+                        # JUST RESUBMIT THE EXIST FLANK ORDER BECAUSE
+                        # THE FLANK ORDER NEEDS AN EXISTING PARENT ORDERID
 
-                        # self._bracket.stopLoss.transmit = True
-                        # self._bracket.takeProfit.transmit = True
+                        if self.profittaker.orderStatus.status == "Inactive":
+                            self.profittaker = self.app.placeOrder(self.contract, self.bracket.takeProfit)
 
-                        self._bracket.stopLoss.outsideRth = True
-
-                        # self._bracket.takeProfit.orderType = "TRAIL LIMIT"
-                        # self._bracket.takeProfit.totalQuantity = ORDERSIZE
-                        # self._bracket.takeProfit.trailStopPrice = takeprofitprice
-                        # self._bracket.takeProfit.auxPrice = EXECUTION_OFFSET[SYMBOL]["profittaker"]
-                        # self._bracket.takeProfit.lmtPriceOffset = EXECUTION_OFFSET[SYMBOL]["profittaker"]
-                        # self._bracket.takeProfit.lmtPrice = None
-
-                        if self.profittaker.isDone():
-                            self.profittaker = self.app.placeOrder(self.contract, self._bracket.takeProfit)
-
-                        if self.stoploss.isDone():
-                            self.stoploss = self.app.placeOrder(self.contract, self._bracket.stopLoss)
+                        if self.stoploss.orderStatus.status == "Inactive":
+                            self.stoploss = self.app.placeOrder(self.contract, self.bracket.stopLoss)
                         # END TRADE BLOCK
 
                         rprint(
                             "[green][RE-FLANKING TRADE][/green]",
-                            f"ID: {self.trade.order.orderId}",
-                            f"ACTION: {self.trade.order.action}",
-                            f"QTY: {self.trade.order.totalQuantity}",
-                            f"LMT: {self.trade.order.lmtPrice}",
+                            f"ID: {self.parent.order.orderId}",
+                            f"ACTION: {self.parent.order.action}",
+                            f"QTY: {self.parent.order.totalQuantity}",
+                            f"LMT: {self.parent.order.lmtPrice}",
                         )
+
+                    # cancel remaining flank if other is filled
+                    if flank_filled:
+                        if self.profittaker.orderStatus.status == "Filled":
+                            self.app.cancelOrder(self.stoploss.order)
+                        if self.stoploss.orderStatus.status == "Filled":
+                            self.app.cancelOrder(self.profit.order)
 
                     # re-entry if trailing limit is triggered
                     if no_position and not reverse and not open_orders:
@@ -335,14 +322,14 @@ class IntradayTrendTrader(AppBase):
 
                         # TRADE BLOCK
                         takeprofitprice = (
-                            orderprice + EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                            orderprice + EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                             if orderside == "BUY"
-                            else orderprice - EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                            else orderprice - EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                         )
                         stoplossprice = (
-                            orderprice - EXECUTION_OFFSET[SYMBOL]["stoploss"]
+                            orderprice - EXECUTION_OFFSET[self.contract.symbol]["stoploss"]
                             if orderside == "BUY"
-                            else orderprice + EXECUTION_OFFSET[SYMBOL]["stoploss"]
+                            else orderprice + EXECUTION_OFFSET[self.contract.symbol]["stoploss"]
                         )
                         self.bracket = self.app.bracketOrder(
                             action=orderside,
@@ -362,21 +349,21 @@ class IntradayTrendTrader(AppBase):
                         self.bracket.takeProfit.orderType = "TRAIL LIMIT"
                         self.bracket.takeProfit.totalQuantity = ORDERSIZE
                         self.bracket.takeProfit.trailStopPrice = takeprofitprice
-                        self.bracket.takeProfit.auxPrice = EXECUTION_OFFSET[SYMBOL]["profittaker"]
-                        self.bracket.takeProfit.lmtPriceOffset = EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                        self.bracket.takeProfit.auxPrice = EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
+                        self.bracket.takeProfit.lmtPriceOffset = EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                         self.bracket.takeProfit.lmtPrice = None
 
-                        self.trade = self.app.placeOrder(self.contract, self.bracket.parent)
+                        self.parent = self.app.placeOrder(self.contract, self.bracket.parent)
                         self.profittaker = self.app.placeOrder(self.contract, self.bracket.takeProfit)
                         self.stoploss = self.app.placeOrder(self.contract, self.bracket.stopLoss)
                         # END TRADE BLOCK
 
                         rprint(
                             "[green][REENTRY][/green]",
-                            f"ID: {self.trade.order.orderId}",
-                            f"ACTION: {self.trade.order.action}",
-                            f"QTY: {self.trade.order.totalQuantity}",
-                            f"LMT: {self.trade.order.lmtPrice}",
+                            f"ID: {self.parent.order.orderId}",
+                            f"ACTION: {self.parent.order.action}",
+                            f"QTY: {self.parent.order.totalQuantity}",
+                            f"LMT: {self.parent.order.lmtPrice}",
                         )
 
                         self.timeoftrade = datetime.datetime.now()
@@ -390,14 +377,14 @@ class IntradayTrendTrader(AppBase):
 
                         # TRADE BLOCK
                         takeprofitprice = (
-                            orderprice + EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                            orderprice + EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                             if orderside == "BUY"
-                            else orderprice - EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                            else orderprice - EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                         )
                         stoplossprice = (
-                            orderprice - EXECUTION_OFFSET[SYMBOL]["stoploss"]
+                            orderprice - EXECUTION_OFFSET[self.contract.symbol]["stoploss"]
                             if orderside == "BUY"
-                            else orderprice + EXECUTION_OFFSET[SYMBOL]["stoploss"]
+                            else orderprice + EXECUTION_OFFSET[self.contract.symbol]["stoploss"]
                         )
                         self.bracket = self.app.bracketOrder(
                             action=orderside,
@@ -417,21 +404,21 @@ class IntradayTrendTrader(AppBase):
                         self.bracket.takeProfit.orderType = "TRAIL LIMIT"
                         self.bracket.takeProfit.totalQuantity = ORDERSIZE
                         self.bracket.takeProfit.trailStopPrice = takeprofitprice
-                        self.bracket.takeProfit.auxPrice = EXECUTION_OFFSET[SYMBOL]["profittaker"]
-                        self.bracket.takeProfit.lmtPriceOffset = EXECUTION_OFFSET[SYMBOL]["profittaker"]
+                        self.bracket.takeProfit.auxPrice = EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
+                        self.bracket.takeProfit.lmtPriceOffset = EXECUTION_OFFSET[self.contract.symbol]["profittaker"]
                         self.bracket.takeProfit.lmtPrice = None
 
-                        self.trade = self.app.placeOrder(self.contract, self.bracket.parent)
+                        self.parent = self.app.placeOrder(self.contract, self.bracket.parent)
                         self.profittaker = self.app.placeOrder(self.contract, self.bracket.takeProfit)
                         self.stoploss = self.app.placeOrder(self.contract, self.bracket.stopLoss)
                         # END TRADE BLOCK
 
                         rprint(
                             "[green][REVERSAL][/green]",
-                            f"ID: {self.trade.order.orderId}",
-                            f"ACTION: {self.trade.order.action}",
-                            f"QTY: {self.trade.order.totalQuantity}",
-                            f"LMT: {self.trade.order.lmtPrice}",
+                            f"ID: {self.parent.order.orderId}",
+                            f"ACTION: {self.parent.order.action}",
+                            f"QTY: {self.parent.order.totalQuantity}",
+                            f"LMT: {self.parent.order.lmtPrice}",
                         )
 
                         self.timeoftrade = datetime.datetime.now()
@@ -455,11 +442,15 @@ if __name__ == "__main__":
     connection_type = sys.argv[2]
     account = sys.argv[3]
 
-    if len(sys.argv) == 4:
-        if sys.argv[4] == "DEBUGGING":
-            os.environ["DEBUGGING"] = True
-
-    app = IntradayTrendTrader(platform=platform, connection_type=connection_type.lower(), account=account)
+    app = IntradayTrendTrader(
+        platform=platform,
+        connection_type=connection_type.lower(),
+        account=account,
+        contract_type="Future",
+        symbol="MES",
+        exchange="Globex",
+        expiry="202209",
+    )
     try:
         asyncio.run(app.run())
     except (KeyboardInterrupt, SystemExit):
