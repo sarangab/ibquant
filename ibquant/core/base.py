@@ -19,12 +19,15 @@ from ibquant.mixins import AccountMixin, AdvisorMixin, ConnectionMixin, Contract
 
 
 class AppBase(AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin, OrderMixin):
-    def __init__(self, platform: str, connection_type: str, contract_type: Optional[str] = None):
+    def __init__(
+        self, platform: str, connection_type: str, account: Optional[str] = None, contract_type: Optional[str] = None
+    ):
         super().__init__()
         self._app = ib.IB()
         self.platform = platform
         self.connection_type = connection_type
         self.contract_type = contract_type
+        self.account = account
 
     @property
     def app(self):
