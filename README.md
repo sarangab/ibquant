@@ -31,7 +31,7 @@ After installing ibquant, ib's command groups can be shown in terminal with:
 
 ## Core Classes and Mixin Interfaces
 
-`core.Base` serves as a base for all other base classes
+`core.AppBase` serves as a base for all other core classes
 
 `core.Trader` drives a user defined strategy in live trading
 
