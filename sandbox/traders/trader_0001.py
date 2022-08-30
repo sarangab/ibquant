@@ -373,16 +373,6 @@ class Trader(AppBase):
                 if self.continue_trading_ops:
                     self.trader_logic()
 
-                    # uncomment for debugging
-                    # rprint(f"position {position}")
-                    # rprint("flanks canx", any_flank_cancelled)
-                    # rprint("pt status", self.profit_taker.orderStatus.status)
-                    # rprint("stop status", self.stop_loss.orderStatus.status)
-                    # rprint("no position", no_position)
-                    # rprint("reverse", self.trend_changed)
-                    # rprint("trade active", self.parent_trade.isActive())
-                    # rprint(f"reentry {no_position and not self.trend_changed and not open_orders}")
-
     def stop(self) -> None:
         self.app.disconnect()
         sys.exit()
