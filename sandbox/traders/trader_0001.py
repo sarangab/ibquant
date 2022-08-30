@@ -27,7 +27,7 @@ from rich import print as rprint
 
 import ib_insync as ib
 from ib_insync.objects import RealTimeBarList
-from ibquant.core.base import AppBase
+from ibquant.core import AppBase
 from ibquant.futures import EquityFutureFrontMonth
 
 
@@ -178,7 +178,7 @@ class Trader(AppBase):
 
     @property
     def trend_reversal(self) -> bool:
-        self.self.trend_changed and not self.no_position and not self.open_order_is_reversal
+        self.trend_changed and not self.no_position and not self.open_order_is_reversal
 
     @property
     def pending_parentorder(self) -> bool:
@@ -308,9 +308,11 @@ class Trader(AppBase):
                 self.app.cancelOrder(order)
 
     def resubmit_flanks(self) -> None:
-        # DO NOT CREATE A NEW BRACKET ORDER
-        # JUST RESUBMIT THE EXIST FLANK ORDER BECAUSE
-        # THE FLANK ORDER NEEDS AN EXISTING PARENT ORDERID
+        """
+        Note:
+            creating a new bracket order caused the new flank order to be rejected.
+            do not create new bracket order
+        """
         if self.profit_taker.orderStatus.status in ["Inactive", "Cancelled"]:
             self.profit_taker = self.app.placeOrder(self.contract, self.bracket.takeProfit)
 

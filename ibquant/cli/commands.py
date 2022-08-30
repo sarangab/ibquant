@@ -23,7 +23,7 @@ from rich.table import Table
 
 import ib_insync as ib
 from ib_insync.objects import AccountValue
-from ibquant.core.base import AppBase
+from ibquant.core import AppBase
 from ibquant.types import PATHLIKE
 from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
