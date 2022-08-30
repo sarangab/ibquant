@@ -96,17 +96,17 @@ class Trader(AppBase):
         exchange: str,
         expiry: Optional[str] = EquityFutureFrontMonth.CODE,
         trailing_limit: bool = False,
-        fast: int = 9,
-        slow: int = 21,
+        fast_window: int = 9,
+        slow_window: int = 21,
         ordersize: int = 1,
         profit_offset: int = 1,  # equal to 4 ticks in SPX fam (ES, MES)
         stop_offset: int = 2,  # equal to 8 ticks in SPX fam (ES, MES)
+        time_sentinel: int = 15,  # total seconds to allow order to wait
     ) -> None:
         super().__init__(
             platform=platform, connection_type=connection_type, account=account, contract_type=contract_type
         )
 
-        # self.app is set in AppBase
         self.app.TimezoneTWS = pytz.timezone("US/Eastern")
 
         self.contract = self.contract_method()
@@ -115,15 +115,14 @@ class Trader(AppBase):
         self.contract.lastTradeDateOrContractMonth = expiry
 
         self.trailinglimit = trailing_limit
-        self.fast_window = fast
-        self.slow_window = slow
+        self.fast_window = fast_window
+        self.slow_window = slow_window
         self.ordersize = ordersize
-
-        # one minute increment is equal to 12 bars
-        self.one_min = 12
-
+        self.time_sentinel = time_sentinel
         self._profit_offset = profit_offset
         self._stop_offset = stop_offset
+
+        self.one_min = 12
 
         rprint("\n" + f"[bold green][FETCHING HISTORY][/bold green] {datetime.datetime.now()}")
 
@@ -208,10 +207,21 @@ class Trader(AppBase):
     def continue_trading_ops(self) -> bool:
         return hasattr(self, "parent_trade")
 
+    @property
+    def price_outpacing_near_ma(self) -> bool:
+        ma = self.fastma if self.position >= 0 else self.slowma
+        return all([bar.wap > ma for bar in self.bars[-2:]])
+
+    @property
+    def price_outpacing_far_ma(self) -> bool:
+        ma = self.slowma if self.position >= 0 else self.fastma
+        return all([bar.wap > ma for bar in self.bars[-2:]])
+
     def execute_trade(self, trade_message: str) -> None:
 
         orderside = "BUY" if self.trend_direction == 1 else "SELL"
-        orderprice = self.bars[-1].close
+        offset = {"BUY": -0.25, "SELL": 0.25}
+        orderprice = self.bars[-1].close + offset[orderside]
 
         if self.trend_reversal:
             quantity = self.ordersize * 2
@@ -261,7 +271,7 @@ class Trader(AppBase):
 
     def trader_logic(self) -> None:
         if self.pending_parentorder:
-            self.cancel_parentorder_if_stale(time_sentinel=30)
+            self.cancel_parentorder_if_stale()
 
         if self.flank_cancelled:
             self.resubmit_flanks()
@@ -280,9 +290,9 @@ class Trader(AppBase):
         if len(self.bars) % self.one_min == 0:
             self.close_history.append(np.mean([bar.wap for bar in self.bars[-self.one_min :]]))
 
-    def cancel_parentorder_if_stale(self, time_sentinel: int) -> None:
+    def cancel_parentorder_if_stale(self) -> None:
         time_delta = (datetime.datetime.now() - self.timeoftrade).total_seconds()
-        if time_delta >= time_sentinel:
+        if time_delta >= self.time_sentinel:
             if self.parent_trade.isActive():
                 rprint(
                     f"[bold green][CANCELLING TRADE {self.parent_trade.order.orderId}][/bold green]",
@@ -326,6 +336,16 @@ class Trader(AppBase):
             f"QTY: {self.parent_trade.order.totalQuantity}",
             f"LMT: {self.parent_trade.order.lmtPrice}",
         )
+
+    @property
+    def pnl(self):
+        pass
+
+    def profit_target_reached(self):
+        pass
+
+    def loss_threshold_reached(self):
+        pass
 
     def order_filled_message(self) -> None:
         if hasattr(self, "parent_trade"):
@@ -394,6 +414,19 @@ if __name__ == "__main__":
     connection_type = sys.argv[2]
     account = sys.argv[3]
 
+    def get_profit_offset():
+
+        market_open = datetime.time(9, 30)
+        market_close = datetime.time(16)
+        rth = market_close > datetime.datetime.now().time() > market_open
+
+        if rth:
+            profit_offset = 1
+        else:
+            profit_offset = 0.5
+
+        return profit_offset
+
     app = Trader(
         platform=platform,
         connection_type=connection_type.lower(),
@@ -402,7 +435,7 @@ if __name__ == "__main__":
         symbol="MES",
         exchange="Globex",
         expiry="202209",
-        profit_offset=0.5 if datetime.datetime.now().time() >= datetime.time(16, 30) else 1,
+        profit_offset=get_profit_offset(),
     )
     try:
         asyncio.run(app.run())
