@@ -82,9 +82,6 @@ class Trader(AppBase):
         for edge cases that might arise when executing at close. All logic is intended
         to work for systems that only trade at close.
 
-        the profit taking order can be either a limit order or trailing limit order.
-        the default order type of trend trader is a plain limit order.
-
         the end state should be that a brute force optimized moving average is found for
         a given market, and that trend is assessed at market close and if a future,
         a reversal should be initiated immediately or validated overnight so as to reduce
@@ -100,7 +97,6 @@ class Trader(AppBase):
         symbol: str,
         exchange: str,
         expiry: Optional[str] = EquityFutureFrontMonth.CODE,
-        trailing_limit: bool = False,
         fast_window: int = 9,
         slow_window: int = 21,
         price_source: str = "close",
@@ -123,7 +119,6 @@ class Trader(AppBase):
         self.contract.exchange = exchange.title()
         self.contract.lastTradeDateOrContractMonth = expiry
 
-        self.trailinglimit = trailing_limit
         self.fast_window = fast_window
         self.slow_window = slow_window
         self.ordersize = ordersize
@@ -341,14 +336,6 @@ class Trader(AppBase):
         )
 
         self.bracket.stopLoss.outsideRth = True
-
-        if self.trailinglimit:
-            self.bracket.takeProfit.orderType = "TRAIL LIMIT"
-            self.bracket.takeProfit.totalQuantity = self.ordersize
-            self.bracket.takeProfit.trailStopPrice = takeprofitprice
-            self.bracket.takeProfit.auxPrice = self.offset["profittaker"]
-            self.bracket.takeProfit.lmtPriceOffset = self.offset["profittaker"]
-            self.bracket.takeProfit.lmtPrice = None
 
         self.parent_trade = self.app.placeOrder(self.contract, self.bracket.parent)
         self.profit_taker = self.app.placeOrder(self.contract, self.bracket.takeProfit)
