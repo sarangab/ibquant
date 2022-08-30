@@ -74,7 +74,7 @@ class ContractException(Exception):
 
 class Trader(AppBase):
     """
-    trend trader is a basic dual moving average system that uses a bracket order
+    trader 0001 is a basic dual moving average system that uses a bracket order
     to flank the position with a stop loss and profit taking order
 
     Note:
