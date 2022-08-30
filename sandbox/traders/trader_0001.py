@@ -210,26 +210,26 @@ class Trader(AppBase):
 
     def execute_trade(self, trade_message: str) -> None:
 
-        self.orderside = "BUY" if self.trend_direction == 1 else "SELL"
-        self.quantity = self.ordersize * 2
-        self.orderprice = self.bars[-1].close
+        orderside = "BUY" if self.trend_direction == 1 else "SELL"
+        orderprice = self.bars[-1].close
+
+        if self.trend_reversal:
+            quantity = self.ordersize * 2
+        else:
+            quantity = self.ordersize
 
         takeprofitprice = (
-            self.orderprice + self.offset["profittaker"]
-            if self.orderside == "BUY"
-            else self.orderprice - self.offset["profittaker"]
+            orderprice + self.offset["profittaker"] if orderside == "BUY" else orderprice - self.offset["profittaker"]
         )
 
         stoplossprice = (
-            self.orderprice - self.offset["stoploss"]
-            if self.orderside == "BUY"
-            else self.orderprice + self.offset["stoploss"]
+            orderprice - self.offset["stoploss"] if orderside == "BUY" else orderprice + self.offset["stoploss"]
         )
 
         self.bracket = self.app.bracketOrder(
-            action=self.orderside,
-            quantity=self.quantity,
-            limitPrice=self.orderprice,
+            action=orderside,
+            quantity=quantity,
+            limitPrice=orderprice,
             takeProfitPrice=takeprofitprice,
             stopLossPrice=stoplossprice,
             account=self.account,
