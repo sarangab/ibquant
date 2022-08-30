@@ -39,7 +39,11 @@ class DataMixin(ABC):
     ):
         """fetches historical bars"""
 
-        self.app.connect()
+        self.app.connect(
+            self.host,
+            self.ports[self.platform][self.connection_type],
+            clientId=self.clientid,
+        )
 
         data = self.app.reqHistoricalData(
             self.contract,

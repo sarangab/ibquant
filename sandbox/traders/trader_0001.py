@@ -68,17 +68,22 @@ def log_data_message_to_terminal(
     )
 
 
+class ContractException(Exception):
+    """informs user of a misconfigured contract state"""
+
+
 class Trader(AppBase):
     """
     trend trader is a basic dual moving average system that uses a bracket order
     to flank the position with a stop loss and profit taking order
 
     Note:
+        The frequency of the system is increased as a method of black box testing
+        for edge cases that might arise when executing at close. All logic is intended
+        to work for systems that only trade at close.
+
         the profit taking order can be either a limit order or trailing limit order.
         the default order type of trend trader is a plain limit order.
-
-        the frequency of the system is increased as a method of black box testing
-        for edge cases.
 
         the end state should be that a brute force optimized moving average is found for
         a given market, and that trend is assessed at market close and if a future,
@@ -88,16 +93,17 @@ class Trader(AppBase):
 
     def __init__(
         self,
-        platform,
-        connection_type,
-        account,
-        contract_type,
+        platform: str,
+        connection_type: str,
+        account: str,
+        contract_type: str,
         symbol: str,
         exchange: str,
         expiry: Optional[str] = EquityFutureFrontMonth.CODE,
         trailing_limit: bool = False,
         fast_window: int = 9,
         slow_window: int = 21,
+        price_source: str = "close",
         ordersize: int = 1,
         profit_offset: int = 1,  # equal to 4 ticks in SPX fam (ES, MES)
         stop_offset: int = 2,  # equal to 8 ticks in SPX fam (ES, MES)
@@ -106,6 +112,9 @@ class Trader(AppBase):
         super().__init__(
             platform=platform, connection_type=connection_type, account=account, contract_type=contract_type
         )
+
+        if contract_type == "Future" and expiry is None:
+            raise ContractException("An Expiry must be set when requesting Futures data")
 
         self.app.TimezoneTWS = pytz.timezone("US/Eastern")
 
@@ -121,18 +130,18 @@ class Trader(AppBase):
         self.time_sentinel = time_sentinel
         self._profit_offset = profit_offset
         self._stop_offset = stop_offset
+        self.price_source = price_source
 
         self.one_min = 12
 
         rprint("\n" + f"[bold green][FETCHING HISTORY][/bold green] {datetime.datetime.now()}")
-
         # TODO add rich progress bar
         self.history = self.historical_bars(
             end_date_time="",
             duration="1 D",
-            bar_size="1 min",
+            bar_size="5 secs",
             what_to_show="TRADES",
-            use_rth=False,
+            use_rth=True,
         )
 
         self.history = self.to_dataframe(self.history)
@@ -197,11 +206,11 @@ class Trader(AppBase):
 
     @property
     def fastma(self) -> float:
-        return spx_nearest_tick(np.mean(self.close_history[-self.fast_window :]))
+        return spx_nearest_tick(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.fast_window :]]))
 
     @property
     def slowma(self) -> float:
-        return spx_nearest_tick(np.mean(self.close_history[-self.slow_window :]))
+        return spx_nearest_tick(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.slow_window :]]))
 
     @property
     def continue_trading_ops(self) -> bool:
@@ -210,17 +219,103 @@ class Trader(AppBase):
     @property
     def price_outpacing_near_ma(self) -> bool:
         ma = self.fastma if self.position >= 0 else self.slowma
-        return all([bar.wap > ma for bar in self.bars[-2:]])
+        return all([getattr(bar, self.bar_source) > ma for bar in self.bars[-2:]])
 
     @property
     def price_outpacing_far_ma(self) -> bool:
         ma = self.slowma if self.position >= 0 else self.fastma
-        return all([bar.wap > ma for bar in self.bars[-2:]])
+        return all([getattr(bar, self.bar_source) > ma for bar in self.bars[-2:]])
+
+    @property
+    def pnl(self):
+        pass
+
+    def update_history(self) -> None:
+        self.close_history.append(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.one_min :]]))
+
+    def cancel_parentorder_if_stale(self) -> None:
+        time_delta = (datetime.datetime.now() - self.timeoftrade).total_seconds()
+        if time_delta >= self.time_sentinel:
+            if self.parent_trade.isActive():
+                rprint(
+                    f"[bold green][CANCELLING TRADE {self.parent_trade.order.orderId}][/bold green]",
+                    f"{datetime.datetime.now()}",
+                )
+                if self.parent_trade.order.orderId in [o.orderId for o in self.app.openOrders()]:
+                    self.app.cancelOrder(self.profit_taker.order)
+                    self.app.cancelOrder(self.stop_loss.order)
+                    self.app.cancelOrder(self.parent_trade.order)
+
+    def cancel_flanks(self, purpose: str) -> None:
+
+        if purpose == "flank_filled":
+            if self.profit_taker.orderStatus.status == "Filled":
+                if self.stop_loss.orderStatus.status != "Cancelled":
+                    self.app.cancelOrder(self.stop_loss.order)
+            if self.stop_loss.orderStatus.status == "Filled":
+                if self.profit_taker.orderStatus.status != "Cancelled":
+                    self.app.cancelOrder(self.profit_taker.order)
+
+        if purpose == "reverse":
+            for order in [self.profit_taker.order, self.stop_loss.order]:
+                self.app.cancelOrder(order)
+
+    def resubmit_flanks(self) -> None:
+        """
+        Note:
+            creating a new bracket order caused the new flank order to be rejected.
+            do not create new bracket order
+        """
+        if self.profit_taker.orderStatus.status in ["Inactive", "Cancelled"]:
+            profit_taker = ib.LimitOrder(
+                action=self.bracket.takeProfit.action,
+                totalQuantity=self.bracket.takeProfit.totalQuantity,
+                stopPrice=self.bracket.takeProfit.lmtPrice,
+            )
+            self.profit_taker = self.app.placeOrder(self.contract, profit_taker)
+            self.profit_taker.order.parentId = self.bracket.parent.orderID
+
+        if self.stop_loss.orderStatus.status in ["Inactive", "Cancelled"]:
+            stop = ib.StopOrder(
+                action=self.bracket.stopLoss.action,
+                totalQuantity=self.bracket.stopLoss.totalQuantity,
+                stopPrice=self.bracket.stopLoss.lmtPrice,
+            )
+            self.stop_loss = self.app.placeOrder(self.contract, stop)
+            self.stop_loss.order.parentId = self.bracket.parent.orderID
+
+        rprint(
+            f"[green][RE-FLANKING TRADE][/green]{datetime.datetime.now()}",
+            f"ID: {self.parent_trade.order.orderId}",
+            f"ACTION: {self.parent_trade.order.action}",
+            f"QTY: {self.parent_trade.order.totalQuantity}",
+            f"LMT: {self.parent_trade.order.lmtPrice}",
+        )
+
+    def profit_target_reached(self):
+        pass
+
+    def loss_threshold_reached(self):
+        pass
+
+    def order_filled_message(self) -> None:
+        if hasattr(self, "parent_trade"):
+            if self.parent_trade.orderStatus.status == "Filled":
+                rprint(
+                    f"[green][ORDER {self.parent_trade.order.orderId} FILLED][/green]{datetime.datetime.now()}",
+                    f"ACTION: {self.parent_trade.order.action}",
+                    f"QTY: {self.parent_trade.order.totalQuantity}",
+                    f"ENTRY: {self.parent_trade.order.lmtPrice}",
+                    f"STOP: {self.stop_loss.order.lmtPrice}",
+                    f"PT: {self.profit_taker.order.lmtPrice}",
+                )
+
+        rprint(f"[bold green][DATA REQUESTED][/bold green] {datetime.datetime.now()}")
 
     def execute_trade(self, trade_message: str) -> None:
 
         orderside = "BUY" if self.trend_direction == 1 else "SELL"
-        offset = {"BUY": -0.25, "SELL": 0.25}
+        offset = {"BUY": -self._profit_offset, "SELL": self._profit_offset}
         orderprice = self.bars[-1].close + offset[orderside]
 
         if self.trend_reversal:
@@ -269,99 +364,28 @@ class Trader(AppBase):
 
         self.timeoftrade = datetime.datetime.now()
 
-    def trader_logic(self) -> None:
-        if self.pending_parentorder:
-            self.cancel_parentorder_if_stale()
+    def trader_logic(self):
+        if self.start_trading_ops:
+            self.execute_trade(trade_message="opening trade")
 
-        if self.flank_cancelled:
-            self.resubmit_flanks()
+        if self.continue_trading_ops:
+            if self.pending_parentorder:
+                self.cancel_parentorder_if_stale()
 
-        if self.flank_filled:
-            self.cancel_flanks(purpose="flank_filled")
+            if self.flank_cancelled:
+                self.resubmit_flanks()
 
-        if self.reentry:
-            self.execute_trade(trade_message="re-entry")
+            if self.flank_filled:
+                self.cancel_flanks(purpose="flank_filled")
 
-        if self.trend_reversal:
-            self.cancel_flanks(purpose="reverse")
-            self.execute_trade(trade_message="reversal")
+            if self.reentry:
+                self.execute_trade(trade_message="re-entry")
 
-    def update_history(self) -> None:
-        if len(self.bars) % self.one_min == 0:
-            self.close_history.append(np.mean([bar.wap for bar in self.bars[-self.one_min :]]))
-
-    def cancel_parentorder_if_stale(self) -> None:
-        time_delta = (datetime.datetime.now() - self.timeoftrade).total_seconds()
-        if time_delta >= self.time_sentinel:
-            if self.parent_trade.isActive():
-                rprint(
-                    f"[bold green][CANCELLING TRADE {self.parent_trade.order.orderId}][/bold green]",
-                    f"{datetime.datetime.now()}",
-                )
-                if self.parent_trade.order.orderId in [o.orderId for o in self.app.openOrders()]:
-                    self.app.cancelOrder(self.profit_taker.order)
-                    self.app.cancelOrder(self.stop_loss.order)
-                    self.app.cancelOrder(self.parent_trade.order)
-
-    def cancel_flanks(self, purpose: str) -> None:
-
-        if purpose == "flank_filled":
-            if self.profit_taker.orderStatus.status == "Filled":
-                if self.stop_loss.orderStatus.status != "Cancelled":
-                    self.app.cancelOrder(self.stop_loss.order)
-            if self.stop_loss.orderStatus.status == "Filled":
-                if self.profit_taker.orderStatus.status != "Cancelled":
-                    self.app.cancelOrder(self.profit_taker.order)
-
-        if purpose == "reverse":
-            for order in [self.profit_taker.order, self.stop_loss.order]:
-                self.app.cancelOrder(order)
-
-    def resubmit_flanks(self) -> None:
-        """
-        Note:
-            creating a new bracket order caused the new flank order to be rejected.
-            do not create new bracket order
-        """
-        if self.profit_taker.orderStatus.status in ["Inactive", "Cancelled"]:
-            self.profit_taker = self.app.placeOrder(self.contract, self.bracket.takeProfit)
-
-        if self.stop_loss.orderStatus.status in ["Inactive", "Cancelled"]:
-            self.stop_loss = self.app.placeOrder(self.contract, self.bracket.stopLoss)
-
-        rprint(
-            f"[green][RE-FLANKING TRADE][/green]{datetime.datetime.now()}",
-            f"ID: {self.parent_trade.order.orderId}",
-            f"ACTION: {self.parent_trade.order.action}",
-            f"QTY: {self.parent_trade.order.totalQuantity}",
-            f"LMT: {self.parent_trade.order.lmtPrice}",
-        )
-
-    @property
-    def pnl(self):
-        pass
-
-    def profit_target_reached(self):
-        pass
-
-    def loss_threshold_reached(self):
-        pass
-
-    def order_filled_message(self) -> None:
-        if hasattr(self, "parent_trade"):
-            if self.parent_trade.orderStatus.status == "Filled":
-                rprint(
-                    f"[green][ORDER {self.parent_trade.order.orderId} FILLED][/green]{datetime.datetime.now()}",
-                    f"ACTION: {self.parent_trade.order.action}",
-                    f"QTY: {self.parent_trade.order.totalQuantity}",
-                    f"ENTRY: {self.parent_trade.order.lmtPrice}",
-                    f"STOP: {self.stop_loss.order.lmtPrice}",
-                    f"PT: {self.profit_taker.order.lmtPrice}",
-                )
+            if self.trend_reversal:
+                self.cancel_flanks(purpose="reverse")
+                self.execute_trade(trade_message="reversal")
 
     async def run(self) -> None:
-
-        rprint(f"[bold green][WORKING][/bold green] {datetime.datetime.now()}")
 
         with await self.app.connectAsync(
             self.host,
@@ -369,7 +393,7 @@ class Trader(AppBase):
             clientId=self.clientid,
         ):
 
-            rprint(f"[bold green][CONNECTING][/bold green] {datetime.datetime.now()}")
+            rprint(f"[bold green][DATA REQUESTED][/bold green] {datetime.datetime.now()}")
 
             self.bars = self.app.reqRealTimeBars(
                 self.contract,
@@ -383,17 +407,13 @@ class Trader(AppBase):
 
             async for update_event in self.bars.updateEvent:
 
-                self.update_history()
+                # self.update_history()
 
                 log_data_message_to_terminal(
                     self.contract.symbol, self.bars, self.fastma, self.slowma, self.position, self.trend_direction
                 )
 
-                if self.start_trading_ops:
-                    self.execute_trade(trade_message="opening trade")
-
-                if self.continue_trading_ops:
-                    self.trader_logic()
+                self.trader_logic()
 
     def stop(self) -> None:
         self.app.disconnect()
@@ -402,32 +422,11 @@ class Trader(AppBase):
 
 if __name__ == "__main__":
 
-    """
-    from command line, do:
-
-    ```sh
-    python {some file name}.py (tws | gateway) (live | paper) YOUR_TARGET_TRADING_ACCOUNT_NUMBER
-    ```
-    """
-
     platform = sys.argv[1]
     connection_type = sys.argv[2]
     account = sys.argv[3]
 
-    def get_profit_offset():
-
-        market_open = datetime.time(9, 30)
-        market_close = datetime.time(16)
-        rth = market_close > datetime.datetime.now().time() > market_open
-
-        if rth:
-            profit_offset = 1
-        else:
-            profit_offset = 0.5
-
-        return profit_offset
-
-    app = Trader(
+    trader = Trader(
         platform=platform,
         connection_type=connection_type.lower(),
         account=account,
@@ -435,9 +434,11 @@ if __name__ == "__main__":
         symbol="MES",
         exchange="Globex",
         expiry="202209",
-        profit_offset=get_profit_offset(),
+        profit_offset=0.5,
+        stop_offset=5,
     )
+
     try:
-        asyncio.run(app.run())
+        asyncio.run(trader.run())
     except (KeyboardInterrupt, SystemExit):
-        app.stop()
+        trader.stop()
