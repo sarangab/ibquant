@@ -16,6 +16,7 @@ from abc import ABC
 from typing import Any, Callable, Dict, List, Union
 
 import ib_insync as ib
+from ibquant.exceptions import ContractException
 
 
 class Contracts:
@@ -72,3 +73,6 @@ class ContractMixin(ABC):
             return None
         _details = self.app.reqContractDetails(self.contract_method(**kwargs))
         return _details[0]
+
+    def validate_contract_config(self):
+        """validates that required params exist"""
