@@ -209,7 +209,7 @@ class Trader(AppBase):
 
     @property
     def continue_trading_ops(self) -> bool:
-        return hasattr(self, "parent_trade")
+        return hasattr(self, "parent_trade") or not self.no_position
 
     @property
     def price_outpacing_near_ma(self) -> bool:

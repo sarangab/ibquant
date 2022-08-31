@@ -74,12 +74,12 @@ class ContractException(Exception):
 
 class Trader(AppBase):
     """
-    trader 0002 is a basic dual moving average system that uses a bracket order
-    to flank the position with a stop loss and profit taking order
+    trader 0002 is a basic dual moving average system that uses a trailing stop limit to
+    trail a limit order if filled
 
     Note:
         trader 0002 is similar to trader 0001 however, trader 0002 uses a trailing stop
-        limit as the lone flanking order in the bracket order
+        limit as the lone flanking order
 
         The frequency of the system is increased as a method of black box testing
         for edge cases that might arise when executing at close. All logic is intended
@@ -100,16 +100,20 @@ class Trader(AppBase):
         connection_type: str,
         account: str,
         contract_type: str,
-        symbol: str,
-        exchange: str,
-        expiry: Optional[str] = EquityFutureFrontMonth.CODE,
+        symbol: Optional[str] = None,
+        exchange: Optional[str] = None,
+        expiry: Optional[str] = None,
         trailing_limit: bool = False,
+        trail_type: str = "TRAIL",
         fast_window: int = 9,
         slow_window: int = 21,
         price_source: str = "close",
         ordersize: int = 1,
         stop_offset: int = 2,  # equal to 8 ticks in SPX fam (ES, MES)
         time_sentinel: int = 15,  # total seconds to allow order to wait
+        persist_history: Optional[bool] = None,
+        data_dir: Optional[str] = None,
+        logs_dir: Optional[str] = None,
     ) -> None:
         super().__init__(
             platform=platform, connection_type=connection_type, account=account, contract_type=contract_type
@@ -120,18 +124,20 @@ class Trader(AppBase):
 
         self.app.TimezoneTWS = pytz.timezone("US/Eastern")
 
-        self.contract = self.contract_method()
-        self.contract.symbol = symbol.upper()
-        self.contract.exchange = exchange.title()
-        self.contract.lastTradeDateOrContractMonth = expiry
+        self.contract = self.contract_method(
+            symbol=symbol or "", exchange=exchange or "", lastTradeDateOrContractMonth=expiry or ""
+        )
 
-        self.trailinglimit = trailing_limit
+        self.trailing_limit = trailing_limit
+        self.trail_type = trail_type
         self.fast_window = fast_window
         self.slow_window = slow_window
-        self.ordersize = ordersize
+        self.order_size = ordersize
         self.time_sentinel = time_sentinel
         self._stop_offset = stop_offset
         self.price_source = price_source
+        self.data_dir = data_dir
+        self.logs_dir = logs_dir
 
         self.one_min = 12
 
@@ -146,7 +152,10 @@ class Trader(AppBase):
         )
 
         self.history = self.to_dataframe(self.history)
-        self.close_history = self.history["close"].to_list()
+        if persist_history:
+            self.persist_history_to_logs(
+                data_dir=f"{os.path.join('data', f'history_{datetime.datetime.now().date().csv}')}"
+            )
 
     @property
     def offset(self) -> Dict[str, str]:
@@ -154,44 +163,22 @@ class Trader(AppBase):
 
     @property
     def open_orders(self) -> bool:
-        return any(
-            i.isActive()
-            for i in [
-                self.parent_trade,
-                self.trailing_order,
-            ]
-        )
+        trades = [getattr(self, attr) for attr in ["parent_trade", "trailing_oder"] if hasattr(self, attr)]
+        return any(i.isActive() for i in trades)
 
     @property
     def open_order_is_reversal(self) -> bool:
-        return self.parent_trade.order.totalQuantity == self.ordersize * 2
+        return self.parent_trade.order.totalQuantity == self.order_size * 2
 
     @property
     def any_flank_cancelled(self) -> bool:
-        return any(
-            not trade.isActive()
-            for trade in [
-                self.trailing_order,
-            ]
-        )
+        trades = [getattr(self, attr) for attr in ["trailing_oder"] if hasattr(self, attr)]
+        return any(not trade.isActive() for trade in trades)
 
     @property
     def flank_filled(self) -> bool:
-        return any(
-            trade.orderStatus.status == "Filled"
-            for trade in [
-                self.trailing_order,
-            ]
-        )
-
-    @property
-    def trend_direction(self) -> int:
-        return 1 if self.fastma >= self.slowma else -1
-
-    @property
-    def position(self) -> int:
-        _position = [i for i in self.app.positions(self.account) if i.contract.symbol == self.contract.symbol]
-        return _position[0].position if _position else 0
+        trades = [getattr(self, attr) for attr in ["trailing_oder"] if hasattr(self, attr)]
+        return any(trade.orderStatus.status == "Filled" for trade in trades)
 
     @property
     def no_position(self) -> bool:
@@ -215,23 +202,31 @@ class Trader(AppBase):
 
     @property
     def flank_cancelled(self) -> bool:
-        return hasattr(self, "bracket") and not self.no_position and self.any_flank_cancelled
+        if hasattr(self, "parent_trade"):
+            parent_trade_active_or_filled = (
+                self.parent_trade.isActive() or self.parent_trade.orderStatus.status == "Filled"
+            )
+            return parent_trade_active_or_filled and not self.no_position and self.any_flank_cancelled
+        return False
 
     @property
     def reentry(self) -> bool:
         return self.no_position and not self.trend_changed and not self.open_orders
 
     @property
-    def fastma(self) -> float:
-        return spx_nearest_tick(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.fast_window :]]))
-
-    @property
-    def slowma(self) -> float:
-        return spx_nearest_tick(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.slow_window :]]))
-
-    @property
     def continue_trading_ops(self) -> bool:
-        return hasattr(self, "parent_trade")
+        return hasattr(self, "parent_trade") or not self.no_position
+
+    @property
+    def place_trailing_order_after_parent_filled(self) -> bool:
+        if hasattr(self, "parent_trade"):
+            if self.parent_trade.orderStatus.status == "Filled":
+                if hasattr(self, "trailing_order"):
+                    if self.trailing_order.isActive() or (not self.no_position and self.trailing_order.isDone()):
+                        return False
+                return True
+        else:
+            False
 
     @property
     def price_outpacing_near_ma(self) -> bool:
@@ -244,58 +239,33 @@ class Trader(AppBase):
         return all([getattr(bar, self.bar_source) > ma for bar in self.bars[-2:]])
 
     @property
+    def fastma(self) -> float:
+        return spx_nearest_tick(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.fast_window :]]))
+
+    @property
+    def slowma(self) -> float:
+        return spx_nearest_tick(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.slow_window :]]))
+
+    @property
+    def trend_direction(self) -> int:
+        return 1 if self.fastma >= self.slowma else -1
+
+    @property
+    def position(self) -> int:
+        _position = [i for i in self.app.positions(self.account) if i.contract.symbol == self.contract.symbol]
+        return _position[0].position if _position else 0
+
+    @property
     def pnl(self):
         pass
 
-    def update_history(self) -> None:
-        self.close_history.append(np.mean([getattr(bar, self.price_source) for bar in self.bars[-self.one_min :]]))
-
-    def cancel_parentorder_if_stale(self) -> None:
-        time_delta = (datetime.datetime.now() - self.timeoftrade).total_seconds()
-        if time_delta >= self.time_sentinel:
-            if self.parent_trade.isActive():
-                rprint(
-                    f"[bold green][CANCELLING TRADE {self.parent_trade.order.orderId}][/bold green]",
-                    f"{datetime.datetime.now()}",
-                )
-                if self.parent_trade.order.orderId in [o.orderId for o in self.app.openOrders()]:
-                    self.app.cancelOrder(self.trailing_order.order)
-                    self.app.cancelOrder(self.parent_trade.order)
-
-    def cancel_flanks(self, purpose: str) -> None:
-        self.app.cancelOrder(self.trailing_order.order)
-
-    def resubmit_flanks(self) -> None:
-        """
-        Note:
-            creating a new bracket order caused the new flank order to be rejected.
-            do not create new bracket order
-        """
-        if self.trailing_order.orderStatus.status in ["Inactive", "Cancelled"]:
-            trailing_order = ib.Order()
-            trailing_order.orderType = "TRAIL LIMIT"
-            trailing_order.action = "BUY" if self.parent_trade.order.action == "SELL" else "SELL"
-            trailing_order.quantity = self.parent_trade.order.totalQuantity
-            trailing_order.parentId = self.parent_trade.order.orderId
-            trailing_order.trailStopPrice = self.trailing_order.order.trailStopPrice
-            trailing_order.auxPrice = self.trailing_order.order.auxPrice
-            trailing_order.lmtPriceOffset = self.trailing_order.order.lmtPriceOffset
-            trailing_order.lmtPrice = None
-            trailing_order.transmit = True
-            self.trailing_order = self.app.placeOrder(self.contract, trailing_order)
-
-        rprint(
-            f"[green][RE-FLANKING TRADE][/green]{datetime.datetime.now()}",
-            f"ID: {self.parent_trade.order.orderId}",
-            f"ACTION: {self.parent_trade.order.action}",
-            f"QTY: {self.parent_trade.order.totalQuantity}",
-            f"LMT: {self.parent_trade.order.lmtPrice}",
-        )
-
-    def profit_target_reached(self):
+    def persist_history_to_logs(self, data_dir) -> None:
         pass
 
-    def loss_threshold_reached(self):
+    def daily_profit_target_reached(self):
+        pass
+
+    def daily_loss_threshold_reached(self):
         pass
 
     def order_filled_message(self) -> None:
@@ -311,35 +281,96 @@ class Trader(AppBase):
 
         rprint(f"[bold green][DATA REQUESTED][/bold green] {datetime.datetime.now()}")
 
-    def execute_trade(self, trade_message: str) -> None:
+    def cancel_flanks(self) -> None:
+        self.app.cancelOrder(self.trailing_order.order)
 
-        action = "BUY" if self.trend_direction == 1 else "SELL"
-        orderprice = self.bars[-1].close
+    def resubmit_flanks(self) -> None:
+        """
+        Note:
+            creating a new bracket order caused the new flank order to be rejected.
+            do not create new bracket order
+        """
+        if self.trailing_order.orderStatus.status in ["Inactive", "Cancelled"]:
+            self.place_trailing_order()
 
-        if self.trend_reversal:
-            quantity = self.ordersize * 2
-        else:
-            quantity = self.ordersize
-
-        entry_price = orderprice - self.offset["stop"] if action == "BUY" else orderprice + self.offset["stop"]
-        limit_price = entry_price - self._stop_offset if action == "BUY" else entry_price + self._stop_offset
-
-        parent_order = ib.LimitOrder(action=action, totalQuantity=quantity, lmtPrice=orderprice, transmit=True)
-
-        trailing_order = ib.Order(
-            orderType="TRAIL LIMIT",
-            action="BUY" if action == "SELL" else "SELL",
-            totalQuantity=quantity,
-            trailStopPrice=limit_price,
-            auxPrice=self.offset["stop"],
-            lmtPriceOffset=self.offset["stop"],
-            lmtPrice=None,
-            parentId=parent_order.orderId,
-            transmit=True,
+        rprint(
+            f"[green][RE-FLANKING TRADE][/green]{datetime.datetime.now()}",
+            f"ID: {self.parent_trade.order.orderId}",
+            f"ACTION: {self.parent_trade.order.action}",
+            f"QTY: {self.parent_trade.order.totalQuantity}",
+            f"LMT: {self.parent_trade.order.lmtPrice}",
         )
 
-        self.parent_trade = self.app.placeOrder(self.contract, parent_order)
+    def place_trailing_order(self) -> None:
+        action = "BUY" if self.parent_trade.order.action == "SELL" else "SELL"
+        entry_price = self.parent_trade.order.lmtPrice
+        limit_price = entry_price - self.offset["stop"] if action == "BUY" else entry_price + self.offset["stop"]
+        trailing_order = ib.Order(
+            orderType="TRAIL LIMIT",
+            action=action,
+            totalQuantity=self.parent_trade.order.totalQuantity,
+            # initial limit price
+            trailStopPrice=limit_price,
+            # the amount which the limit trails the stop price
+            auxPrice=0.25,
+            # calculates the limit order price, setting to zero keeps at stop price
+            lmtPriceOffset=0 if self.trail_type == "TRAIL LIMIT" else "",
+            lmtPrice=None,
+            # parentId=self.parent_trade.order.orderId,
+            transmit=True,
+            outsideRth=True,
+        )
+
         self.trailing_order = self.app.placeOrder(self.contract, trailing_order)
+
+    def cancel_parentorder_if_stale(self) -> None:
+        time_delta = (datetime.datetime.now() - self.timeoftrade).total_seconds()
+        if time_delta >= self.time_sentinel:
+            if self.parent_trade.isActive():
+                rprint(
+                    f"[bold green][CANCELLING TRADE {self.parent_trade.order.orderId}][/bold green]",
+                    f"{datetime.datetime.now()}",
+                )
+                if self.parent_trade.order.orderId in [o.orderId for o in self.app.openOrders()]:
+                    self.app.cancelOrder(self.trailing_order.order)
+                    self.app.cancelOrder(self.parent_trade.order)
+
+    def execute_trade(self, trade_message: str) -> None:
+
+        if self.trend_reversal:
+            quantity = self.order_size * 2
+        else:
+            quantity = self.order_size
+
+        parent_action = "BUY" if self.trend_direction == 1 else "SELL"
+        trailing_action = "BUY" if parent_action == "SELL" else "SELL"
+
+        entry_price = self.bars[-1].close
+        limit_price = entry_price - self.offset["stop"] if parent_action == "BUY" else entry_price + self.offset["stop"]
+
+        bracket_order = self.app.bracketOrder(
+            action=parent_action,
+            quantity=quantity,
+            limitPrice=entry_price,
+            takeProfitPrice=0.0,  # appease postional arg
+            stopLossPrice=0.0,
+            account=self.account,
+        )
+
+        bracket_order.stopLoss.orderType = self.trail_type
+        bracket_order.stopLoss.action = trailing_action
+        bracket_order.stopLoss.totalQuantity = quantity
+        bracket_order.stopLoss.trailStopPrice = limit_price  # initial limit price
+        bracket_order.stopLoss.auxPrice = 0.25  # the amount which the limit trails the stop price
+        # calcs the limit order price, setting to zero keeps at stop price
+        bracket_order.stopLoss.lmtPriceOffset = 0 if self.trail_type == "TRAIL LIMIT" else ""
+        bracket_order.stopLoss.lmtPrice = None
+        bracket_order.stopLoss.transmit = True
+        bracket_order.stopLoss.outsideRth = True
+        bracket_order.stopLoss.hidden = True
+
+        self.parent_trade = self.app.placeOrder(self.contract, bracket_order.parent)
+        self.trailing_order = self.app.placeOrder(self.contract, bracket_order.stopLoss)
 
         rprint(
             f"[green][{trade_message.upper()}][/green] {datetime.datetime.now()}",
@@ -389,7 +420,8 @@ class Trader(AppBase):
 
             async for update_event in self.bars.updateEvent:
 
-                # self.update_history()
+                if self.persist_history:
+                    self.update_history()
 
                 log_data_message_to_terminal(
                     self.contract.symbol, self.bars, self.fastma, self.slowma, self.position, self.trend_direction
@@ -409,14 +441,16 @@ if __name__ == "__main__":
     account = sys.argv[3]
 
     trader = Trader(
-        platform=platform,
+        platform=platform.lower(),
         connection_type=connection_type.lower(),
-        account=account,
+        account=account.upper(),
         contract_type="Future",
         symbol="MES",
-        exchange="Globex",
-        expiry="202209",
-        stop_offset=1,
+        exchange="GLOBEX",
+        expiry=EquityFutureFrontMonth.expiry,
+        stop_offset=5,
+        trail_type="TRAIL LIMIT",
+        persist_history=True,
     )
 
     try:
