@@ -220,7 +220,7 @@ def contract():
 )
 @click.option(
     "--contract-type",
-    type=click.Choice(["Stock", "Future", "Commodity", "Index", "Fund"], case_sensitive=True),
+    type=click.Choice(["Stock", "Future", "Commodity", "Index", "Fund", "Forex"], case_sensitive=True),
     required=True,
 )
 @click.option("--con-id", required=False)
@@ -242,10 +242,7 @@ def conid_lookup(platform, connection_type, contract_type, con_id):
     if not contract_details:
         rprint("[red]See error logs above[/red]")
         sys.exit()
-    if contract_type == "Stock":
-        rprint(f"[green]The conID is {contract_details.contract.conId}[/green]")
-    if contract_type == "Future":
-        rprint(f"[green]The contract is {contract_details.contract}[/green]")
+    rprint(f"[green]The contract is {contract_details.contract}[/green]")
 
 
 # ---------------
