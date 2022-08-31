@@ -28,12 +28,7 @@ from rich import print as rprint
 import ib_insync as ib
 from ib_insync.objects import RealTimeBarList
 from ibquant.core import AppBase
-from ibquant.futures import EquityFutureFrontMonth
-
-
-def spx_nearest_tick(x):
-    """rounds to nearest tick increment"""
-    return math.ceil(x * 4) / 4
+from ibquant.futures import EquityFutureFrontMonth, spx_nearest_tick
 
 
 def make_csvs():
@@ -138,6 +133,7 @@ class Trader(AppBase):
         self.price_source = price_source
         self.data_dir = data_dir
         self.logs_dir = logs_dir
+        self.persist_history = persist_history
 
         self.one_min = 12
 
@@ -150,12 +146,6 @@ class Trader(AppBase):
             what_to_show="TRADES",
             use_rth=True,
         )
-
-        self.history = self.to_dataframe(self.history)
-        if persist_history:
-            self.persist_history_to_logs(
-                data_dir=f"{os.path.join('data', f'history_{datetime.datetime.now().date().csv}')}"
-            )
 
     @property
     def offset(self) -> Dict[str, str]:
@@ -257,9 +247,6 @@ class Trader(AppBase):
 
     @property
     def pnl(self):
-        pass
-
-    def persist_history_to_logs(self, data_dir) -> None:
         pass
 
     def daily_profit_target_reached(self):
@@ -420,8 +407,8 @@ class Trader(AppBase):
 
             async for update_event in self.bars.updateEvent:
 
-                if self.persist_history:
-                    self.update_history()
+                # if self.persist_history:
+                #     self.persist_history_to_logs()
 
                 log_data_message_to_terminal(
                     self.contract.symbol, self.bars, self.fastma, self.slowma, self.position, self.trend_direction
@@ -451,6 +438,7 @@ if __name__ == "__main__":
         stop_offset=5,
         trail_type="TRAIL LIMIT",
         persist_history=True,
+        data_dir="data",
     )
 
     try:
