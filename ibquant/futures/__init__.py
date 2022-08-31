@@ -1,2 +1,1 @@
-from ibquant.futures.equityfuturefrontmonth import EquityFutureFrontMonth
-from ibquant.futures.marketcontracts import MarketContracts
+from ibquant.futures.utils import EquityFutureFrontMonth, MarketContracts, spx_nearest_tick
