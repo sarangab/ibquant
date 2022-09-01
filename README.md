@@ -39,19 +39,19 @@ ib --help
 
 `core.Learner` is used to optimize gradient based learning strategies
 
-`mixins.AccountMixin` enables account features for non-advisor accounts
+`mixins.AccountMixins` enables account features for non-advisor accounts
 
-`mixins.AdvisorMixin` enables features for an advisor account (groups, model portfolios)
+`mixins.AdvisorMixins` enables features for an advisor account (groups, model portfolios)
 
-`mixins.ConnectionMixin` handles the connection to the running TWS or Gateway sesion
+`mixins.ConnectionMixins` handles the connection to the running TWS or Gateway sesion
 
-`mixins.ContractMixin` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
+`mixins.ContractMixins` provides an extended class to define [contracts](https://interactivebrokers.github.io/tws-api/contracts.html) for the TWS API
 
-`mixins.DataMixin` provides utilities for fetching historical data, and for streaming top of book or limit order book data.
+`mixins.DataMixins` provides utilities for fetching historical data, and for streaming top of book or limit order book data.
 
-`mixins.OrderMixin` provides interfaces for several TWS [order types](https://interactivebrokers.github.io/tws-api/available_orders.html)
+`mixins.OrderMixins` provides interfaces for several TWS [order types](https://interactivebrokers.github.io/tws-api/available_orders.html)
 
-`mixins.Strategy` provides a base class for user defined strategies
+`mixins.StrategyMixins` provides a base class for user defined strategies
 
 ## Installation
 
