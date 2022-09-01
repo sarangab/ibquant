@@ -19,8 +19,8 @@ import numpy as np
 import ib_insync as ib
 
 
-class ConnectionMixin(ABC):
-    """an improvement on ib_insync.connection.Connection"""
+class ConnectionMixins(ABC):
+    """an extension of ib_insync.connection.Connection"""
 
     def __init__(self):
         super().__init__()

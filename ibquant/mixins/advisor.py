@@ -31,7 +31,7 @@ class AdvisorGroup:
     members: tuple = ()
 
 
-class AdvisorMixin(ABC):
+class AdvisorMixins(ABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

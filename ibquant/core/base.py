@@ -15,10 +15,10 @@
 from typing import Optional
 
 import ib_insync as ib
-from ibquant.mixins import AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin, OrderMixin
+from ibquant.mixins import AccountMixins, AdvisorMixins, ConnectionMixins, ContractMixins, DataMixins
 
 
-class AppBase(AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin, OrderMixin):
+class AppBase(AccountMixins, AdvisorMixins, ConnectionMixins, ContractMixins, DataMixins):
     def __init__(
         self, platform: str, connection_type: str, account: Optional[str] = None, contract_type: Optional[str] = None
     ):

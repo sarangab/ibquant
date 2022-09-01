@@ -23,10 +23,9 @@ from rich import print as rprint
 
 import ib_insync as ib
 from ibquant.futures import EquityFutureFrontMonth
-from ibquant.types import PATHLIKE
 
 
-class DataMixin(ABC):
+class DataMixins(ABC):
     def __init__(self) -> None:
         super().__init__()
 
@@ -108,7 +107,7 @@ class DataMixin(ABC):
         """
 
         data = self.app.reqHistogramData(
-            self.contract(),
+            self.contract,
             use_rth,
             period,
         )
@@ -124,9 +123,3 @@ class DataMixin(ABC):
 
     def to_dataframe(self, data):
         return ib.util.df(data)
-
-    def persist_history_to_logs(self, data_dir: PATHLIKE, filename: str, filetype: str) -> None:
-        if filetype == "pq":
-            filetype = "parquet"
-        persist_method = getattr(self.history, f"to_{filetype}")
-        persist_method("".join([data_dir, filename, ".", filetype]))

@@ -24,8 +24,8 @@ from rich.table import Table
 import ib_insync as ib
 from ib_insync.objects import AccountValue
 from ibquant.core import AppBase
+from ibquant.io import add_ibconfigs_section, download, ignore_path, unzip
 from ibquant.types import PATHLIKE
-from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 
 class CLI(AppBase):

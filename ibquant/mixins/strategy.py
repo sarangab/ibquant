@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Strategy should replace trade logic methods currently found in core.Trader"""
+
+
 from abc import ABC
 
 
-class OrderMixin(ABC):
-    def __init__(self) -> None:
+class StrategyMixins(ABC):
+    def __init__(self):
         super().__init__()

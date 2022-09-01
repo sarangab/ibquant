@@ -19,27 +19,7 @@ import ib_insync as ib
 from ibquant.exceptions import ContractException
 
 
-class Contracts:
-    Contract = {"method": ib.contract.Contract, "sectype": ""}
-    Stock = {"method": ib.contract.Stock, "sectype": "STK"}
-    Option = {"method": ib.contract.Option, "sectype": "OPT"}
-    Future = {"method": ib.contract.Future, "sectype": "FUT"}
-    ContFuture = {"method": ib.contract.ContFuture, "sectype": "CONTFUT"}
-    Forex = {"method": ib.contract.Forex, "sectype": "CASH"}
-    Index = {"method": ib.contract.Index, "sectype": "IND"}
-    CFD = {"method": ib.contract.CFD, "sectype": "CFD"}
-    Bond = {"method": ib.contract.Bond, "sectype": "BOND"}
-    Commodity = {"method": ib.contract.Commodity, "sectype": "CMDTY"}
-    FuturesOption = {"method": ib.contract.FuturesOption, "sectype": "FOP"}
-    MutualFund = {"method": ib.contract.MutualFund, "sectype": "FUND"}
-    Warrant = {"method": ib.contract.Warrant, "sectype": "WAR"}
-    IOPT = {"method": ib.contract.Warrant, "sectype": "IOPT"}
-    Bag = {"method": ib.contract.Bag, "sectype": "BAG"}
-    Crypto = {"method": ib.contract.Crypto, "sectype": "CRYPTO"}
-    News = {"method": ib.contract.Contract, "sectype": "NEWS"}
-
-
-class ContractMixin(ABC):
+class ContractMixins(ABC):
     def __init__(self) -> None:
         super().__init__()
 
@@ -76,3 +56,23 @@ class ContractMixin(ABC):
 
     def validate_contract_config(self):
         """validates that required params exist"""
+
+
+class Contracts:
+    Contract = {"method": ib.contract.Contract, "sectype": ""}
+    Stock = {"method": ib.contract.Stock, "sectype": "STK"}
+    Option = {"method": ib.contract.Option, "sectype": "OPT"}
+    Future = {"method": ib.contract.Future, "sectype": "FUT"}
+    ContFuture = {"method": ib.contract.ContFuture, "sectype": "CONTFUT"}
+    Forex = {"method": ib.contract.Forex, "sectype": "CASH"}
+    Index = {"method": ib.contract.Index, "sectype": "IND"}
+    CFD = {"method": ib.contract.CFD, "sectype": "CFD"}
+    Bond = {"method": ib.contract.Bond, "sectype": "BOND"}
+    Commodity = {"method": ib.contract.Commodity, "sectype": "CMDTY"}
+    FuturesOption = {"method": ib.contract.FuturesOption, "sectype": "FOP"}
+    MutualFund = {"method": ib.contract.MutualFund, "sectype": "FUND"}
+    Warrant = {"method": ib.contract.Warrant, "sectype": "WAR"}
+    IOPT = {"method": ib.contract.Warrant, "sectype": "IOPT"}
+    Bag = {"method": ib.contract.Bag, "sectype": "BAG"}
+    Crypto = {"method": ib.contract.Crypto, "sectype": "CRYPTO"}
+    News = {"method": ib.contract.Contract, "sectype": "NEWS"}

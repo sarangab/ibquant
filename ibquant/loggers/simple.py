@@ -17,6 +17,7 @@ from abc import ABC
 from typing import Tuple
 
 import ib_insync as ib
+from ibquant.types import PATHLIKE
 
 ACCOUNT_TYPE = "IB.accountSummary"
 
@@ -29,3 +30,9 @@ class SimpleLogger(ABC):
 
     def returns(self):
         return self.account.value - self.starting_capital
+
+    def persist_history_to_logs(self, data_dir: PATHLIKE, filename: str, filetype: str) -> None:
+        if filetype == "pq":
+            filetype = "parquet"
+        persist_method = getattr(self.history, f"to_{filetype}")
+        persist_method("".join([data_dir, filename, ".", filetype]))

@@ -15,7 +15,7 @@
 from abc import ABC
 
 
-class AccountMixin(ABC):
+class AccountMixins(ABC):
     def __init__(self):
         super().__init__()
 
