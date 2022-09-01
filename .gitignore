@@ -145,5 +145,7 @@ outputs/
 ibc/
 
 # demos
-demo_notebooks/
 sandbox/
+
+# data
+data/

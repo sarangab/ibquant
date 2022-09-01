@@ -22,7 +22,8 @@ import pandas as pd
 from rich import print as rprint
 
 import ib_insync as ib
-from ibquant.utilities import EquityFutureFrontMonth
+from ibquant.futures import EquityFutureFrontMonth
+from ibquant.types import PATHLIKE
 
 
 class DataMixin(ABC):
@@ -35,8 +36,15 @@ class DataMixin(ABC):
         duration: str = "1 D",
         bar_size: str = "1 min",
         what_to_show: str = "TRADES",
+        use_rth: bool = False,
     ):
         """fetches historical bars"""
+
+        self.app.connect(
+            self.host,
+            self.ports[self.platform][self.connection_type],
+            clientId=self.clientid,
+        )
 
         data = self.app.reqHistoricalData(
             self.contract,
@@ -44,10 +52,12 @@ class DataMixin(ABC):
             durationStr=duration,
             barSizeSetting=bar_size,
             whatToShow=what_to_show,
-            useRTH=True,
+            useRTH=use_rth,
         )
 
-        time.sleep(60)
+        ib.util.sleep(30)
+        self.app.disconnect()
+        ib.util.sleep(5)
 
         return data
 
@@ -98,7 +108,7 @@ class DataMixin(ABC):
         """
 
         data = self.app.reqHistogramData(
-            self.contract,
+            self.contract(),
             use_rth,
             period,
         )
@@ -114,3 +124,9 @@ class DataMixin(ABC):
 
     def to_dataframe(self, data):
         return ib.util.df(data)
+
+    def persist_history_to_logs(self, data_dir: PATHLIKE, filename: str, filetype: str) -> None:
+        if filetype == "pq":
+            filetype = "parquet"
+        persist_method = getattr(self.history, f"to_{filetype}")
+        persist_method("".join([data_dir, filename, ".", filetype]))

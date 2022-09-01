@@ -11,6 +11,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-# replicate a 20 / 50 dual moving average strategy
+class ContractException(Exception):
+    """informs user of a misconfigured contract state"""

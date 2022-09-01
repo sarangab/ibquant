@@ -12,15 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from typing import Optional
 
+import ib_insync as ib
 from ibquant.mixins import AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin, OrderMixin
 
 
-class QuantBase(AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin, OrderMixin):
-    def __init__(self, platform: str, connection_type: str, contract_type: Optional[str] = None):
+class AppBase(AccountMixin, AdvisorMixin, ConnectionMixin, ContractMixin, DataMixin, OrderMixin):
+    def __init__(
+        self, platform: str, connection_type: str, account: Optional[str] = None, contract_type: Optional[str] = None
+    ):
         super().__init__()
+        self._app = ib.IB()
         self.platform = platform
-        self.connection = connection_type
+        self.connection_type = connection_type
         self.contract_type = contract_type
+        self.account = account
+
+    @property
+    def app(self):
+        return self._app

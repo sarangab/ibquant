@@ -21,13 +21,14 @@ from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+import ib_insync as ib
 from ib_insync.objects import AccountValue
-from ibquant.core.base import QuantBase
+from ibquant.core import AppBase
 from ibquant.types import PATHLIKE
 from ibquant.utilities import add_ibconfigs_section, download, ignore_path, unzip
 
 
-class CLI(QuantBase):
+class CLI(AppBase):
     def __init__(self, *args: Any, **kwargs: Any):
         super(CLI, self).__init__(*args, **kwargs)
 
