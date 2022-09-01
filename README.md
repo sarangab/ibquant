@@ -26,7 +26,7 @@ The CLI is named `ib`.
 After installing ibquant, ib's command groups can be shown in terminal with:
 
 ```sh
-`ib --help`
+ib --help
 ```
 
 ## Core Classes and Mixin Interfaces
