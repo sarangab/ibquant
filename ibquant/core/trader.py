@@ -225,12 +225,13 @@ class Trader(AppBase):
 
         Example:
 
-        .. highlight:: python
-        .. code-block:: python
-            action = "BUY" if some_logic_is_true else "SELL"
-            entry_price = self.bars[-1].close
-            limit_order = ib.LimitOrder(action=action, totalQuantity=1, lmtPrice=limit_price)
-            self.trade = self.app.placeOrder(self.contract, limit_order)
+        ```python
+        action = "BUY" if some_logic_is_true else "SELL"
+        entry_price = self.bars[-1].close
+        limit_order = ib.LimitOrder(action=action, totalQuantity=1, lmtPrice=limit_price)
+        self.trade = self.app.placeOrder(self.contract, limit_order)
+        ```
+
         """
 
     def trader_logic(self):
@@ -238,24 +239,25 @@ class Trader(AppBase):
 
         Example:
 
-        .. highlight:: python
-        .. code-block:: python
-            if self.start_trading_ops:
-                self.execute_trade(trade_message="opening trade")
+        ```python
+        if self.start_trading_ops:
+            self.execute_trade(trade_message="opening trade")
 
-            if self.continue_trading_ops:
-                if self.pending_parentorder:
-                    self.cancel_parentorder_if_stale()
+        if self.continue_trading_ops:
+            if self.pending_parentorder:
+                self.cancel_parentorder_if_stale()
 
-                if self.flank_cancelled:
-                    self.resubmit_flanks()
+            if self.flank_cancelled:
+                self.resubmit_flanks()
 
-                if self.reentry:
-                    self.execute_trade(trade_message="re-entry")
+            if self.reentry:
+                self.execute_trade(trade_message="re-entry")
 
-                if self.trend_reversal:
-                    self.cancel_flanks(purpose="reverse")
-                    self.execute_trade(trade_message="reversal")
+            if self.trend_reversal:
+                self.cancel_flanks(purpose="reverse")
+                self.execute_trade(trade_message="reversal")
+        ```
+
         """
 
     async def run_async(self) -> None:
@@ -264,46 +266,12 @@ class Trader(AppBase):
 
         Example:
 
-        .. highlight:: python
-        .. code-block:: python
-            with await self.app.connectAsync(
-                self.host,
-                self.ports[self.platform][self.connection_type],
-                clientId=self.clientid,
-            ):
-
-                self.bars = self.app.reqRealTimeBars(
-                    self.contract,
-                    barSize=5,
-                    whatToShow="TRADES",
-                    useRTH=False,
-                    realTimeBarsOptions=[],
-                )
-
-                rprint(f"[bold green][DATA REQUESTED][/bold green] {datetime.datetime.now()}")
-
-                async for update_event in self.bars.updateEvent:
-                    if self.persist_history:
-                        self.update_history()
-
-                    log_data_message_to_terminal(
-                        self.contract.symbol, self.bars, self.fastma, self.slowma, self.position, self.trend_direction
-                    )
-
-                    self.trader_logic()
-        """
-
-    def run(self):
-        """runs non-async jobs
-
-        Example:
-        .. highlight:: python
-        .. code-block:: python
-            self.app.connect(
-                self.host,
-                self.ports[self.platform][self.connection_type],
-                clientId=self.clientid,
-            )
+        ```python
+        with await self.app.connectAsync(
+            self.host,
+            self.ports[self.platform][self.connection_type],
+            clientId=self.clientid,
+        ):
 
             self.bars = self.app.reqRealTimeBars(
                 self.contract,
@@ -315,16 +283,53 @@ class Trader(AppBase):
 
             rprint(f"[bold green][DATA REQUESTED][/bold green] {datetime.datetime.now()}")
 
-            ib.util.sleep(30)
+            async for update_event in self.bars.updateEvent:
+                if self.persist_history:
+                    self.update_history()
 
-            if self.persist_history:
-                self.update_history()
+                log_data_message_to_terminal(
+                    self.contract.symbol, self.bars, self.fastma, self.slowma, self.position, self.trend_direction
+                )
 
-            log_data_message_to_terminal(
-                self.contract.symbol, self.bars, self.fastma, self.slowma, self.position, self.trend_direction
-            )
+                self.trader_logic()
+        ```
 
-            self.trader_logic()
+        """
+
+    def run(self):
+        """runs non-async jobs
+
+        Example:
+
+        ```python
+        self.app.connect(
+            self.host,
+            self.ports[self.platform][self.connection_type],
+            clientId=self.clientid,
+        )
+
+        self.bars = self.app.reqRealTimeBars(
+            self.contract,
+            barSize=5,
+            whatToShow="TRADES",
+            useRTH=False,
+            realTimeBarsOptions=[],
+        )
+
+        rprint(f"[bold green][DATA REQUESTED][/bold green] {datetime.datetime.now()}")
+
+        ib.util.sleep(30)
+
+        if self.persist_history:
+            self.update_history()
+
+        log_data_message_to_terminal(
+            self.contract.symbol, self.bars, self.fastma, self.slowma, self.position, self.trend_direction
+        )
+
+        self.trader_logic()
+        ```
+
         """
 
     def stop(self) -> None:

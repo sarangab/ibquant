@@ -146,7 +146,7 @@ ibc/
 
 # demos
 demo_notebooks/
-_sandbox/
+sandbox/
 
 # data
 data/
